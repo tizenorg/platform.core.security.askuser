@@ -19,27 +19,36 @@
  * @brief       Main ask user daemon file
  */
 
+#include <exception>
 #include <cstdlib>
-#include <unistd.h>
-
 #include <systemd/sd-journal.h>
 #include <systemd/sd-daemon.h>
 
 #include <attributes/attributes.h>
 #include <log/log.h>
 
+#include "Agent.h"
+
 int main(int argc UNUSED, char **argv UNUSED) {
     init_log();
 
-    int ret = sd_notify(0, "READY=1");
-    if (ret == 0) {
-        LOGW("Ask user agent was not configured to notify its status");
-    } else if (ret < 0) {
-        LOGE("sd_notify failed [%d]", ret);
-    }
+    try {
+        AskUserAgent::Agent agent;
 
-    while (true) {
-        sleep(1);
+        int ret = sd_notify(0, "READY=1");
+        if (ret == 0) {
+            LOGW("Agent was not configured to notify its status");
+        } else if (ret < 0) {
+            LOGE("sd_notify failed [%d]", ret);
+        }
+
+        agent.run();
+    } catch (const std::exception &e) {
+        LOGC("Agent stopped because of unhandled exception: %s", e.what());
+        return EXIT_FAILURE;
+    } catch (...) {
+        LOGC("Agent stopped because of unknown unhandled exception.");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
