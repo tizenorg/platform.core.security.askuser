@@ -14,34 +14,48 @@
  *    limitations under the License.
  */
 /**
- * @file        Agent.h
+ * @file        CynaraTalker.h
  * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
- * @brief       This file defines main class of ask user agent
+ * @brief       This file declares class representing request from cynara service
  */
 
 #pragma once
 
-#include <main/CynaraTalker.h>
+#include <functional>
+#include <future>
+#include <mutex>
+#include <thread>
+
+#include <cynara-agent.h>
+#include <cynara-plugin.h>
+
 #include <main/Request.h>
 
 namespace AskUser {
 
 namespace Agent {
 
-class Agent {
-public:
-    Agent();
-    ~Agent();
+typedef std::function<void(RequestPtr)> RequestHandler;
 
-    void run();
+class CynaraTalker {
+public:
+    CynaraTalker(RequestHandler requestHandler);
+    ~CynaraTalker() {}
+
+    bool start();
+    bool stop();
+
+    bool sendResponse(RequestType requestType, RequestId requestId, const Cynara::PluginData &data);
 
 private:
-    CynaraTalker m_cynaraTalker;
+    RequestHandler m_requestHandler;
+    cynara_agent *m_cynara;
+    std::thread m_thread;
+    std::mutex m_mutex;
+    std::promise<bool> m_threadFinished;
+    std::future<bool> m_future;
 
-    void init();
-    void finish();
-
-    void requestHandler(RequestPtr request);
+    void run();
 };
 
 } // namespace Agent
