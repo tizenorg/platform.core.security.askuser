@@ -19,6 +19,7 @@
  * @brief       This file implements main class of ask user agent
  */
 
+#include <cinttypes>
 #include <unistd.h>
 
 #include <log/log.h>
@@ -29,7 +30,7 @@ namespace AskUser {
 
 namespace Agent {
 
-Agent::Agent() {
+Agent::Agent() : m_cynaraTalker([&](const Request &request) -> void { requestHandler(request); }) {
     init();
 }
 
@@ -44,7 +45,10 @@ void Agent::init() {
 }
 
 void Agent::run() {
-    // TODO: implement real task
+    m_cynaraTalker.start();
+
+    // TODO: wait for requests
+
     while (true) {
         sleep(1);
     }
@@ -56,6 +60,13 @@ void Agent::finish() {
     // TODO: implement if needed
 
     LOGD("Agent daemon has stopped commonly");
+}
+
+void Agent::requestHandler(const Request &request) {
+    LOGD("Cynara request received:"
+         " type [" << request.type() << "],"
+         " id [" << request.id() << "],"
+         " data length: [" << request.data().size() << "]");
 }
 
 } // namespace Agent
