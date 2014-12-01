@@ -21,6 +21,12 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <map>
+#include <mutex>
+
+#include <containers/ConcurrentQueue.h>
+
 #include <main/CynaraTalker.h>
 #include <main/Request.h>
 
@@ -37,11 +43,17 @@ public:
 
 private:
     CynaraTalker m_cynaraTalker;
+    std::map<RequestId, Request> m_requests;
+    AskUser::ConcurrentQueue<Request> m_incomingRequests;
+    std::condition_variable m_event;
+    std::mutex m_mutex;
 
     void init();
     void finish();
 
     void requestHandler(const Request &request);
+    void processCynaraRequest(const Request &request);
+    bool startUIForRequest(const Request &request);
 };
 
 } // namespace Agent

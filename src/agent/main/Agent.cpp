@@ -21,7 +21,9 @@
 
 #include <cinttypes>
 #include <unistd.h>
+#include <utility>
 
+#include <attributes/attributes.h>
 #include <log/log.h>
 
 #include "Agent.h"
@@ -47,17 +49,36 @@ void Agent::init() {
 void Agent::run() {
     m_cynaraTalker.start();
 
-    // TODO: wait for requests
-
     while (true) {
-        sleep(1);
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_event.wait(lock);
+
+        Request request;
+        if (m_incomingRequests.pop(request)) {
+            LOGD("Request popped from queue:"
+                 " type [" << request.type() << "],"
+                 " id [" << request.id() << "],"
+                 " data length [" << request.data().size() << "]");
+
+            if (request.type() == RT_Close) {
+                break;
+            }
+
+            processCynaraRequest(request);
+        } else {
+            LOGD("No request available in queue");
+        }
+
+        //TODO: do sth here with available data from UIs
     }
 
-    LOGD("Ask user agent task stopped");
+    //TODO: dismiss all threads if possible
+
+    LOGD("Agent task stopped");
 }
 
 void Agent::finish() {
-    // TODO: implement if needed
+    m_cynaraTalker.stop();
 
     LOGD("Agent daemon has stopped commonly");
 }
@@ -67,6 +88,51 @@ void Agent::requestHandler(const Request &request) {
          " type [" << request.type() << "],"
          " id [" << request.id() << "],"
          " data length: [" << request.data().size() << "]");
+
+    m_incomingRequests.push(request);
+    m_event.notify_one();
+}
+
+void Agent::processCynaraRequest(const Request &request) {
+    auto existingRequest = m_requests.find(request.id());
+    if (existingRequest != m_requests.end()) {
+        if (request.type() == RT_Cancel) {
+            m_requests.erase(existingRequest);
+            m_cynaraTalker.sendResponse(request.type(), request.id(), Cynara::PluginData());
+            //TODO: get UI for request and dismiss or update it
+        } else {
+            LOGE("Incoming request with ID: [" PRIu16 "] is being already processed", request.id());
+        }
+        return;
+    }
+
+    if (request.type() == RT_Cancel) {
+        LOGE("Cancel request for unknown request: ID: [" PRIu16 "]", request.id());
+        return;
+    }
+
+    for (const auto &req : m_requests) {
+        if (req.second.data() == request.data()) {
+            LOGI("Request (id: [" PRIu16 "]) with the same plugin data is already being processed.",
+                 req.second.id());
+            // For now I don't know what to do so I do nothing.
+            return;
+        }
+    }
+
+    if (!startUIForRequest(request)) {
+        // Answer to cynara. Translator will be used in order to create data, for now data is empty
+        // Also type of request will be RT_Action
+        m_cynaraTalker.sendResponse(RT_Action, request.id(), Cynara::PluginData());
+        return;
+    }
+
+    m_requests.insert(std::make_pair(request.id(), request));
+}
+
+bool Agent::startUIForRequest(const Request &request UNUSED) {
+    // TODO: start UI for request
+    return false;
 }
 
 } // namespace Agent
