@@ -7,6 +7,7 @@ License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 Source1:    %{name}.manifest
 Source2:    libaskuser-commons.manifest
+Source3:    askuser-plugins.manifest
 BuildRequires: cmake
 BuildRequires: zip
 BuildRequires: pkgconfig(libsystemd-daemon)
@@ -29,10 +30,18 @@ Summary:    Askuser commons library
 %description -n libaskuser-commons
 askuser common library with common functionalities
 
+%package -n askuser-plugins
+Requires:   cynara
+Summary:    Askuser commons library
+
+%description -n askuser-plugins
+askuser common library with common functionalities
+
 %prep
 %setup -q
 cp -a %{SOURCE1} .
 cp -a %{SOURCE2} .
+cp -a %{SOURCE3} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -87,3 +96,8 @@ fi
 %manifest libaskuser-commons.manifest
 %license LICENSE
 %{_libdir}/libaskuser-commons.so*
+
+%files -n askuser-plugins
+%manifest askuser-plugins.manifest
+%license LICENSE
+%{_libdir}/cynara/plugin/*
