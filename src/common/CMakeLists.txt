@@ -15,14 +15,26 @@
 # @file        CMakeLists.txt
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
 #
+PKG_CHECK_MODULES(COMMON_DEP
+    REQUIRED
+    cynara-plugin
+    cynara-agent
+    )
 
 SET(ASKUSER_COMMON_VERSION_MAJOR 0)
 SET(ASKUSER_COMMON_VERSION ${ASKUSER_COMMON_VERSION_MAJOR}.0.1)
 
 SET(COMMON_PATH ${ASKUSER_PATH}/common)
 
+INCLUDE_DIRECTORIES(
+    ${COMMON_DEP_INCLUDE_DIRS}
+    ${COMMON_PATH}
+    )
+
 SET(COMMON_SOURCES
     ${COMMON_PATH}/log/log.cpp
+    ${COMMON_PATH}/translator/Translator.cpp
+    ${COMMON_PATH}/types/AgentErrorMsg.cpp
     )
 
 ADD_LIBRARY(${TARGET_ASKUSER_COMMON} SHARED ${COMMON_SOURCES})
