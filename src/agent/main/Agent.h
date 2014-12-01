@@ -21,6 +21,12 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <csignal>
+#include <map>
+#include <mutex>
+#include <queue>
+
 #include <main/CynaraTalker.h>
 #include <main/Request.h>
 
@@ -35,13 +41,24 @@ public:
 
     void run();
 
+    static void stop() {
+        m_stopFlag = 1;
+    }
+
 private:
     CynaraTalker m_cynaraTalker;
+    std::map<RequestId, RequestPtr> m_requests;
+    std::queue<RequestPtr> m_incomingRequests;
+    std::condition_variable m_event;
+    std::mutex m_mutex;
+    static volatile sig_atomic_t m_stopFlag;
 
     void init();
     void finish();
 
     void requestHandler(RequestPtr request);
+    void processCynaraRequest(RequestPtr request);
+    bool startUIForRequest(RequestPtr request);
 };
 
 } // namespace Agent
