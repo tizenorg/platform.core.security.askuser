@@ -26,6 +26,7 @@
 namespace AskUser {
 namespace AgentErrorMsg {
 
+extern const std::string NoError;
 extern const std::string Error;
 extern const std::string Timeout;
 
