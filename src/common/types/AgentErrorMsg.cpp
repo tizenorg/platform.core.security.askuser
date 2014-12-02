@@ -24,6 +24,7 @@
 namespace AskUser {
 namespace AgentErrorMsg {
 
+const std::string NoError = "";
 const std::string Error = "ERROR";
 const std::string Timeout = "TIMEOUT";
 
