@@ -24,11 +24,15 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
+#include <types/PolicyType.h>
 
 #include <containers/ConcurrentQueue.h>
 
 #include <main/CynaraTalker.h>
 #include <main/Request.h>
+#include <main/Response.h>
+
+#include <ui/AskUIInterface.h>
 
 namespace AskUser {
 
@@ -45,15 +49,22 @@ private:
     CynaraTalker m_cynaraTalker;
     std::map<RequestId, Request> m_requests;
     AskUser::ConcurrentQueue<Request> m_incomingRequests;
+    AskUser::ConcurrentQueue<Response> m_incomingResponses;
     std::condition_variable m_event;
     std::mutex m_mutex;
+    std::map<RequestId, AskUIInterfacePtr> m_UIs;
 
     void init();
     void finish();
 
     void requestHandler(const Request &request);
+    void UIResponseHandler(RequestId requestId, UIResponseType responseType);
+
     void processCynaraRequest(const Request &request);
     bool startUIForRequest(const Request &request);
+    bool cleanupUIThreads();
+
+    static Cynara::PolicyType UIResponseToPolicyType(UIResponseType responseType);
 };
 
 } // namespace Agent
