@@ -40,6 +40,10 @@ namespace Client {
 const Cynara::PolicyType ALLOW_ONCE = 11;
 const Cynara::PolicyType ALLOW_PER_SESSION = 12;
 const Cynara::PolicyType ALLOW_PER_LIFE = 13;
+
+const Cynara::PolicyType DENY_ONCE = 14;
+const Cynara::PolicyType DENY_PER_SESSION = 15;
+const Cynara::PolicyType DENY_PER_LIFE = 16;
 } //namespace Client
 } //namespace SupportedTypes
 } //namespace AskUser
