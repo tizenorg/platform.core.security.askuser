@@ -19,6 +19,8 @@
  * @brief       This file implements main class of ask user agent
  */
 
+#include <chrono>
+#include <cstdlib>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -60,7 +62,16 @@ void Agent::run() {
 
     while (!m_stopFlag) {
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_event.wait(lock);
+        m_event.wait_for(lock, std::chrono::milliseconds(1000));
+
+        if (m_stopFlag) {
+            while (!m_incomingRequests.empty()) {
+                RequestPtr request = m_incomingRequests.front();
+                m_incomingRequests.pop();
+                delete request;
+            }
+            break;
+        }
 
         while (!m_incomingRequests.empty() || !m_incomingResponses.empty()) {
 
@@ -105,15 +116,21 @@ void Agent::run() {
 
     }
 
-    //TODO: dismiss all threads if possible
-
     LOGD("Agent task stopped");
 }
 
 void Agent::finish() {
-    m_cynaraTalker.stop();
-
-    LOGD("Agent daemon has stopped commonly");
+    bool success = cleanupUIThreads() && m_cynaraTalker.stop();
+    if (!success) {
+        LOGE("At least one of threads could not be stopped. Calling quick_exit()");
+        quick_exit(EXIT_SUCCESS);
+    } else {
+        for (auto it = m_requests.begin(); it != m_requests.end();) {
+            delete it->second;
+            it = m_requests.erase(it);
+        }
+        LOGD("Agent daemon has stopped commonly");
+    }
 }
 
 void Agent::requestHandler(RequestPtr request) {
