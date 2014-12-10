@@ -31,6 +31,8 @@
 #include <types/AgentErrorMsg.h>
 #include <types/SupportedTypes.h>
 
+#include <ui/AskUINotificationBackend.h>
+
 #include "Agent.h"
 
 namespace AskUser {
@@ -175,7 +177,7 @@ void Agent::processCynaraRequest(const Request &request) {
 
 bool Agent::startUIForRequest(const Request &request) {
     auto data = Translator::Agent::dataToRequest(request.data());
-    auto ui = std::shared_ptr<AskUIInterface>(); // TODO: create pointer to backend
+    auto ui = std::make_shared<AskUINotificationBackend>();
 
     auto handler = [&](RequestId requestId, UIResponseType resultType) -> void {
                        UIResponseHandler(requestId, resultType);
@@ -184,6 +186,7 @@ bool Agent::startUIForRequest(const Request &request) {
     if (ret) {
         m_UIs[request.id()] = ui;
     }
+
     return ret;
 }
 
