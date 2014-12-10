@@ -44,6 +44,7 @@ public:
     ~Agent();
 
     void run();
+    static void stop();
 
 private:
     CynaraTalker m_cynaraTalker;
@@ -53,6 +54,7 @@ private:
     std::condition_variable m_event;
     std::mutex m_mutex;
     std::map<RequestId, AskUIInterfacePtr> m_UIs;
+    static std::unique_ptr<Agent> m_instance;
 
     void init();
     void finish();
