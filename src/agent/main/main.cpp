@@ -19,6 +19,7 @@
  * @brief       Main ask user daemon file
  */
 
+#include <clocale>
 #include <cstdlib>
 #include <exception>
 #include <systemd/sd-journal.h>
@@ -31,6 +32,9 @@
 
 int main(int argc UNUSED, char **argv UNUSED) {
     init_log();
+
+    char *locale = setlocale(LC_ALL, "");
+    LOGD("Current locale is: <" << locale << ">");
 
     try {
         AskUser::Agent::Agent agent;

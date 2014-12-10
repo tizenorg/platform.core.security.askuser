@@ -23,7 +23,6 @@
 #include <sstream>
 #include <string>
 
-#include <cinttypes>
 #include <unistd.h>
 #include <utility>
 
