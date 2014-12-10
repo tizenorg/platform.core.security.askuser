@@ -20,7 +20,9 @@
  */
 
 #include <clocale>
+#include <csignal>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <systemd/sd-journal.h>
 #include <systemd/sd-daemon.h>
@@ -30,7 +32,24 @@
 
 #include "Agent.h"
 
+// Handle kill message from systemd
+void kill_handler(int sig UNUSED) {
+    LOGD("Ask user agent service is going down now");
+    AskUser::Agent::Agent::stop();
+}
+
 int main(int argc UNUSED, char **argv UNUSED) {
+    int ret;
+    struct sigaction act;
+
+    // Install kill handler - TERM signal will be delivered form systemd to kill this service
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = &kill_handler;
+    if ((ret = sigaction(SIGTERM, &act, NULL)) < 0) {
+        LOGE("sigaction failed [<<" << ret << "]");
+        return EXIT_FAILURE;
+    }
+
     init_log();
 
     char *locale = setlocale(LC_ALL, "");
