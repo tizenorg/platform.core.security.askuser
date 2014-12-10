@@ -19,6 +19,7 @@
  * @brief       This file implements main class of ask user agent
  */
 
+#include <cstdlib>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -39,8 +40,11 @@ namespace AskUser {
 
 namespace Agent {
 
+std::unique_ptr<Agent> Agent::m_instance;
+
 Agent::Agent() : m_cynaraTalker([&](const Request &request) -> void { requestHandler(request); }) {
     init();
+    m_instance = std::unique_ptr<Agent>(this);
 }
 
 Agent::~Agent() {
@@ -112,15 +116,24 @@ void Agent::run() {
         cleanupUIThreads();
     }
 
-    //TODO: dismiss all threads if possible
-
     LOGD("Agent task stopped");
 }
 
-void Agent::finish() {
-    m_cynaraTalker.stop();
+void Agent::stop() {
+    LOGD("Trying to stop main thread nicely.");
+    if (m_instance) {
+        m_instance->requestHandler(Request(RT_Close, 0, nullptr, 0));
+    }
+}
 
-    LOGD("Agent daemon has stopped commonly");
+void Agent::finish() {
+    bool success = cleanupUIThreads() && m_cynaraTalker.stop();
+    if (!success) {
+        LOGE("At least one of threads could not be stopped. Calling quick_exit()");
+        quick_exit(EXIT_SUCCESS);
+    } else {
+        LOGD("Agent daemon has stopped commonly");
+    }
 }
 
 void Agent::requestHandler(const Request &request) {
