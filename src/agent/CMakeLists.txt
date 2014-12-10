@@ -18,6 +18,7 @@
 
 SET(AGENT_DEPS
     cynara-agent
+    notification
     )
 
 PKG_CHECK_MODULES(AGENT_DEP
@@ -31,6 +32,7 @@ SET(ASKUSER_SOURCES
     ${ASKUSER_AGENT_PATH}/main/Agent.cpp
     ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
     ${ASKUSER_AGENT_PATH}/main/main.cpp
+    ${ASKUSER_AGENT_PATH}/ui/AskUINotificationBackend.cpp
     )
 
 INCLUDE_DIRECTORIES(
