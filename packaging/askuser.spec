@@ -100,4 +100,5 @@ fi
 %files -n askuser-plugins
 %manifest askuser-plugins.manifest
 %license LICENSE
-%{_libdir}/cynara/plugin/*
+%{_libdir}/cynara/plugin/client/*
+%{_libdir}/cynara/plugin/service/*
