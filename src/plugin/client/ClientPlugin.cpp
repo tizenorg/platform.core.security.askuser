@@ -25,23 +25,24 @@
 
 #include <attributes/attributes.h>
 #include <log/log.h>
+#include <types/PolicyDescription.h>
 #include <types/SupportedTypes.h>
 
 using namespace Cynara;
 
 namespace AskUser {
-const std::vector<PolicyType> clientTypes = {
-        SupportedTypes::Client::ALLOW_ONCE,
-        SupportedTypes::Client::ALLOW_PER_SESSION,
+const std::vector<PolicyDescription> clientDescriptions = {
+        { SupportedTypes::Client::ALLOW_ONCE, "Allow once" },
+        { SupportedTypes::Client::ALLOW_PER_SESSION, "Allow per session" },
 
-        SupportedTypes::Client::DENY_ONCE,
-        SupportedTypes::Client::DENY_PER_SESSION
+        { SupportedTypes::Client::DENY_ONCE, "Deny once" },
+        { SupportedTypes::Client::DENY_PER_SESSION, "Deny per session" }
 };
 
 class ClientPlugin : public ClientPluginInterface {
 public:
-    const std::vector<PolicyType> &getSupportedPolicyTypes() {
-        return clientTypes;
+    const std::vector<PolicyDescription> &getSupportedPolicyDescr() {
+        return clientDescriptions;
     }
 
     bool isCacheable(const ClientSession &session UNUSED, const PolicyResult &result) {
