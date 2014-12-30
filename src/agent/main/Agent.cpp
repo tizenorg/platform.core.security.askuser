@@ -28,11 +28,11 @@
 #include <utility>
 
 #include <attributes/attributes.h>
-#include <log/log.h>
 #include <translator/Translator.h>
 #include <types/AgentErrorMsg.h>
 #include <types/SupportedTypes.h>
 
+#include <log/alog.h>
 #include <ui/AskUINotificationBackend.h>
 
 #include "Agent.h"
@@ -54,7 +54,7 @@ Agent::~Agent() {
 void Agent::init() {
     // TODO: implement if needed
 
-    LOGD("Agent daemon initialized");
+    ALOGD("Agent daemon initialized");
 }
 
 void Agent::run() {
@@ -75,7 +75,7 @@ void Agent::run() {
                 m_incomingRequests.pop();
                 lock.unlock();
 
-                LOGD("Request popped from queue:"
+                ALOGD("Request popped from queue:"
                      " type [" << request->type() << "],"
                      " id [" << request->id() << "],"
                      " data length [" << request->data().size() << "]");
@@ -95,7 +95,7 @@ void Agent::run() {
                 m_incomingResponses.pop();
                 lock.unlock();
 
-                LOGD("Response popped from queue:"
+                ALOGD("Response popped from queue:"
                      " type [" << response.type() << "],"
                      " id [" << response.id() << "]");
 
@@ -110,12 +110,12 @@ void Agent::run() {
         }
     }
 
-    LOGD("Agent task stopped");
+    ALOGD("Agent task stopped");
 }
 
 void Agent::finish() {
     if (!m_cynaraTalker.stop()) {
-        LOGE("Cynara talker thread could not be stopped. Calling quick_exit()");
+        ALOGE("Cynara talker thread could not be stopped. Calling quick_exit()");
         quick_exit(EXIT_SUCCESS);
     }
 
@@ -126,7 +126,7 @@ void Agent::finish() {
     }
 
     if (!cleanupUIThreads()) {
-        LOGE("At least one of UI threads could not be stopped. Calling quick_exit()");
+        ALOGE("At least one of UI threads could not be stopped. Calling quick_exit()");
         quick_exit(EXIT_SUCCESS);
     }
 
@@ -135,11 +135,11 @@ void Agent::finish() {
         it = m_requests.erase(it);
     }
 
-    LOGD("Agent daemon has stopped commonly");
+    ALOGD("Agent daemon has stopped commonly");
 }
 
 void Agent::requestHandler(RequestPtr request) {
-    LOGD("Cynara request received:"
+    ALOGD("Cynara request received:"
          " type [" << request->type() << "],"
          " id [" << request->id() << "],"
          " data length: [" << request->data().size() << "]");
@@ -158,14 +158,14 @@ void Agent::processCynaraRequest(RequestPtr request) {
             m_cynaraTalker.sendResponse(request->type(), request->id(), Cynara::PluginData());
             dismissUI(request->id());
         } else {
-            LOGE("Incoming request with ID: [" << request->id() << "] is being already processed");
+            ALOGE("Incoming request with ID: [" << request->id() << "] is being already processed");
         }
         delete request;
         return;
     }
 
     if (request->type() == RT_Cancel) {
-        LOGE("Cancel request for unknown request: ID: [" << request->id() << "]");
+        ALOGE("Cancel request for unknown request: ID: [" << request->id() << "]");
         delete request;
         return;
     }
@@ -219,7 +219,7 @@ bool Agent::startUIForRequest(RequestPtr request) {
 }
 
 void Agent::UIResponseHandler(RequestId requestId, UIResponseType responseType) {
-    LOGD("UI response received: type [" << responseType << "], id [" << requestId << "]");
+    ALOGD("UI response received: type [" << responseType << "], id [" << requestId << "]");
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_incomingResponses.push(Response(requestId, responseType));
