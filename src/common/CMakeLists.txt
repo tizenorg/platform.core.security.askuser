@@ -45,7 +45,6 @@ INCLUDE_DIRECTORIES(
     )
 
 SET(COMMON_SOURCES
-    ${COMMON_PATH}/log/log.cpp
     ${COMMON_PATH}/translator/Translator.cpp
     ${COMMON_PATH}/types/AgentErrorMsg.cpp
     )

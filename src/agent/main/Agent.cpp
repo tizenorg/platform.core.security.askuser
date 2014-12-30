@@ -27,11 +27,11 @@
 #include <utility>
 
 #include <attributes/attributes.h>
-#include <log/log.h>
 #include <translator/Translator.h>
 #include <types/AgentErrorMsg.h>
 #include <types/SupportedTypes.h>
 
+#include <log/alog.h>
 #include <ui/AskUINotificationBackend.h>
 
 #include "Agent.h"
@@ -54,7 +54,7 @@ Agent::~Agent() {
 void Agent::init() {
     // TODO: implement if needed
 
-    LOGD("Agent daemon initialized");
+    ALOGD("Agent daemon initialized");
 }
 
 void Agent::run() {
@@ -66,7 +66,7 @@ void Agent::run() {
 
         Request request;
         if (m_incomingRequests.pop(request)) {
-            LOGD("Request popped from queue:"
+            ALOGD("Request popped from queue:"
                  " type [" << request.type() << "],"
                  " id [" << request.id() << "],"
                  " data length [" << request.data().size() << "]");
@@ -77,12 +77,12 @@ void Agent::run() {
 
             processCynaraRequest(request);
         } else {
-            LOGD("No request available in queue");
+            ALOGD("No request available in queue");
         }
 
         Response response;
         if (m_incomingResponses.pop(response)) {
-            LOGD("Response popped from queue:"
+            ALOGD("Response popped from queue:"
                  " type [" << response.type() << "],"
                  " id [" << response.id() << "]");
 
@@ -110,17 +110,17 @@ void Agent::run() {
                 }
             }
         } else {
-            LOGD("No responses available in queue");
+            ALOGD("No responses available in queue");
         }
 
         cleanupUIThreads();
     }
 
-    LOGD("Agent task stopped");
+    ALOGD("Agent task stopped");
 }
 
 void Agent::stop() {
-    LOGD("Trying to stop main thread nicely.");
+    ALOGD("Trying to stop main thread nicely.");
     if (m_instance) {
         m_instance->requestHandler(Request(RT_Close, 0, nullptr, 0));
     }
@@ -129,15 +129,15 @@ void Agent::stop() {
 void Agent::finish() {
     bool success = cleanupUIThreads() && m_cynaraTalker.stop();
     if (!success) {
-        LOGE("At least one of threads could not be stopped. Calling quick_exit()");
+        ALOGE("At least one of threads could not be stopped. Calling quick_exit()");
         quick_exit(EXIT_SUCCESS);
     } else {
-        LOGD("Agent daemon has stopped commonly");
+        ALOGD("Agent daemon has stopped commonly");
     }
 }
 
 void Agent::requestHandler(const Request &request) {
-    LOGD("Cynara request received:"
+    ALOGD("Cynara request received:"
          " type [" << request.type() << "],"
          " id [" << request.id() << "],"
          " data length: [" << request.data().size() << "]");
@@ -159,19 +159,19 @@ void Agent::processCynaraRequest(const Request &request) {
                 }
             }
         } else {
-            LOGE("Incoming request with ID: [" << request.id() << "] is being already processed");
+            ALOGE("Incoming request with ID: [" << request.id() << "] is being already processed");
         }
         return;
     }
 
     if (request.type() == RT_Cancel) {
-        LOGE("Cancel request for unknown request: ID: [" << request.id() << "]");
+        ALOGE("Cancel request for unknown request: ID: [" << request.id() << "]");
         return;
     }
 
     for (const auto &req : m_requests) {
         if (req.second.data() == request.data()) {
-            LOGI("Request (id: [" << req.second.id() <<
+            ALOGI("Request (id: [" << req.second.id() <<
                  "]) with the same plugin data is already being processed.");
             // For now I don't know what to do so I do nothing.
             return;
@@ -203,7 +203,7 @@ bool Agent::startUIForRequest(const Request &request) {
 }
 
 void Agent::UIResponseHandler(RequestId requestId, UIResponseType responseType) {
-    LOGD("UI response received: type [" << responseType << "], id [" << requestId << "]");
+    ALOGD("UI response received: type [" << responseType << "], id [" << requestId << "]");
 
     m_incomingResponses.push(Response(requestId, responseType));
     m_event.notify_one();
