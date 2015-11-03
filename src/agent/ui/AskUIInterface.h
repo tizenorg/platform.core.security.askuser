@@ -31,15 +31,15 @@ namespace AskUser {
 
 namespace Agent {
 
-typedef enum {
-    URT_NO_ONCE,
-    URT_NO_SESSION,
-    URT_NO_LIFE,
-    URT_YES_ONCE,
-    URT_YES_SESSION,
-    URT_YES_LIFE,
-    URT_TIMEOUT,
-    URT_ERROR
+typedef enum : int{
+    URT_NO_ONCE     = 0,
+    URT_NO_SESSION  = 1,
+    URT_NO_LIFE     = 2,
+    URT_YES_ONCE    = 3,
+    URT_YES_SESSION = 4,
+    URT_YES_LIFE    = 5,
+    URT_TIMEOUT     = 6,
+    URT_ERROR       = 7
 } UIResponseType;
 
 typedef std::function<void(RequestId, UIResponseType)> UIResponseCallback;

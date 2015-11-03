@@ -72,6 +72,7 @@ SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
 SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
 SET(TARGET_CLIENT "askuser-test-client")
+SET(TARGET_ASKUSER_POPUP "askuser-popup")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(systemd)
