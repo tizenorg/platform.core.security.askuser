@@ -32,6 +32,9 @@ SET(ASKUSER_SOURCES
     ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
     ${ASKUSER_AGENT_PATH}/main/main.cpp
     ${ASKUSER_AGENT_PATH}/ui/AskUINotificationBackend.cpp
+    ${ASKUSER_AGENT_PATH}/ui/AskUIPopupBackend.cpp
+    ${ASKUSER_AGENT_PATH}/ui/popup-runner.cpp
+    ${ASKUSER_AGENT_PATH}/ui/serialization.cpp
     )
 
 INCLUDE_DIRECTORIES(
@@ -52,3 +55,4 @@ TARGET_LINK_LIBRARIES(${TARGET_ASKUSER}
 INSTALL(TARGETS ${TARGET_ASKUSER} DESTINATION ${BIN_INSTALL_DIR})
 
 ADD_SUBDIRECTORY(po)
+ADD_SUBDIRECTORY(popup-bin)
