@@ -49,17 +49,9 @@ public:
     }
 
 private:
-    notification_h m_notification;
-    std::thread m_thread;
-    RequestId m_requestId;
-    UIResponseCallback m_responseCallback;
     static const int m_responseTimeout = 60; // seconds
-    std::promise<bool> m_threadFinished;
-    std::future<bool> m_future;
     std::atomic<bool> m_dismissing;
 
-    void run();
-    bool createUI(const std::string &client, const std::string &user, const std::string &privilege);
 };
 
 } // namespace Agent
