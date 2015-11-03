@@ -33,9 +33,9 @@
 #include <types/SupportedTypes.h>
 
 #include <log/alog.h>
-#include <ui/AskUINotificationBackend.h>
-
 #include "Agent.h"
+#include <ui/AskUINotificationBackend.h>
+#include <ui/AskUIPopupBackend.h>
 
 namespace AskUser {
 
@@ -206,7 +206,7 @@ void Agent::processUIResponse(const Response &response) {
 
 bool Agent::startUIForRequest(Request *request) {
     auto data = Translator::Agent::dataToRequest(request->data());
-    AskUIInterfacePtr ui(new AskUINotificationBackend());
+    AskUIInterfacePtr ui(new AskUIPopupBackend());
 
     auto handler = [&](RequestId requestId, UIResponseType resultType) -> void {
                        UIResponseHandler(requestId, resultType);
