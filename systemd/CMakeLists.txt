@@ -19,11 +19,11 @@
 INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/${PROJECT_NAME}.service
     DESTINATION
-    lib/systemd/system
+    ${SYSTEMD_UNIT_DIR}
 )
 
 INSTALL(FILES
     ${CMAKE_SOURCE_DIR}/systemd/askuser-notification.service
     DESTINATION
-    lib/systemd/user
+    ${SYSTEMD_USER_UNIT_DIR}
 )
