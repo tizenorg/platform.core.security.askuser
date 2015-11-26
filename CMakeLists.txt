@@ -28,6 +28,23 @@ set(ASKUSER_VERSION 0.1.0)
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckCXXCompilerFlag)
 
+########################## search for packages ################################
+
+PKG_CHECK_MODULES(SYSTEMD_DEP
+    QUIET
+    libsystemd
+    )
+
+IF (SYSTEMD_DEP_FOUND)
+    IF (NOT DEFINED BUILD_WITH_SYSTEMD_DAEMON)
+        SET(BUILD_WITH_SYSTEMD_DAEMON ON)
+    ENDIF ()
+ELSE()
+    IF (BUILD_WITH_SYSTEMD_DAEMON)
+        MESSAGE(FATAL_ERROR "Can't find libsystemd")
+    ENDIF ()
+ENDIF (SYSTEMD_DEP_FOUND)
+
 #############################  install dirs  ##################################
 
 SET(BIN_INSTALL_DIR
@@ -82,7 +99,9 @@ SET(TARGET_TEST "askuser-test")
 SET(TARGET_TESTS "askuser-tests")
 
 ADD_SUBDIRECTORY(src)
+
 IF (BUILD_WITH_SYSTEMD_DAEMON)
 ADD_SUBDIRECTORY(systemd)
 ENDIF (BUILD_WITH_SYSTEMD_DAEMON)
+
 ADD_SUBDIRECTORY(test)
