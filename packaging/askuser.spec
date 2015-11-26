@@ -83,6 +83,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 %cmake . \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
         -DBUILD_WITH_SYSTEMD_DAEMON=%{?with_systemd_daemon} \
+        -DBUILD_WITH_SYSTEMD_JOURNAL=ON \
         -DCMAKE_VERBOSE_MAKEFILE=ON
 make %{?jobs:-j%jobs}
 
