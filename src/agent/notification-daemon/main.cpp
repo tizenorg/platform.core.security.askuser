@@ -23,7 +23,6 @@
 #include <csignal>
 #include <cstdlib>
 #include <string>
-#include <systemd/sd-daemon.h>
 #include <thread>
 #include <unistd.h>
 
@@ -32,6 +31,10 @@
 
 #include "GuiRunner.h"
 #include "AskUserTalker.h"
+
+#ifdef BUILD_WITH_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 int main()
 {
@@ -45,13 +48,14 @@ int main()
         GuiRunner gui;
         AskUserTalker askUserTalker(&gui);
 
+#ifdef BUILD_WITH_SYSTEMD
         int ret = sd_notify(0, "READY=1");
         if (ret == 0) {
             ALOGW("Agent was not configured to notify its status");
         } else if (ret < 0) {
             ALOGE("sd_notify failed: [" << ret << "]");
         }
-
+#endif
         askUserTalker.run();
 
     } catch (std::exception &e) {

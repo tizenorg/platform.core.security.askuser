@@ -3,19 +3,23 @@ SET(TESTS_PATH ${PROJECT_SOURCE_DIR}/test/)
 FIND_PACKAGE(Threads REQUIRED) # Required by gmock
 
 PKG_CHECK_MODULES(TESTS_DEP
-    QUIET gmock
+    REQUIRED
+    gmock
     cynara-client
     cynara-creds-socket
     cynara-admin
-    libsystemd-daemon
 )
+
+INCLUDE_DIRECTORIES(SYSTEM
+    ${TESTS_DEP_INCLUDE_DIRS}
+    ${SYSTEMD_DEP_INCLUDE_DIRS}
+    )
 
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/common
     ${PROJECT_SOURCE_DIR}/src/agent
     ${PROJECT_SOURCE_DIR}/src/agent/main
-    ${gmock_INCLUDE_DIRS}
 )
 
 SET(TESTS_SOURCES
@@ -33,8 +37,6 @@ SET(TESTS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/agent/main/NotificationTalker.cpp
    )
 
-ADD_DEFINITIONS(${TESTS_DEP_CFLAGS})
-
 ADD_EXECUTABLE(${TARGET_TESTS} ${TESTS_SOURCES})
 
 SET_TARGET_PROPERTIES(${TARGET_TESTS} PROPERTIES
@@ -44,8 +46,7 @@ SET_TARGET_PROPERTIES(${TARGET_TESTS} PROPERTIES
 
 TARGET_LINK_LIBRARIES(${TARGET_TESTS}
     ${TESTS_DEP_LIBRARIES}
-        ${gmock_LDFLAGS}
-        ${gmock_LIBRARIES}
+    ${SYSTEMD_DEP_LIBRARIES}
     -pie
 )
 

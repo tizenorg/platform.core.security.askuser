@@ -28,6 +28,18 @@ set(ASKUSER_VERSION 0.1.0)
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckCXXCompilerFlag)
 
+########################## search for packages ################################
+
+PKG_CHECK_MODULES(SYSTEMD_DEP
+    QUIET
+    libsystemd-daemon
+    libsystemd-journal
+    )
+
+IF (SYSTEMD_DEP_FOUND)
+    SET(BUILD_WITH_SYSTEMD ON)
+ENDIF (SYSTEMD_DEP_FOUND)
+
 #############################  install dirs  ##################################
 
 SET(BIN_INSTALL_DIR
@@ -68,6 +80,10 @@ IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
     ADD_DEFINITIONS("-DBUILD_TYPE_DEBUG")
 ENDIF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
 
+IF (BUILD_WITH_SYSTEMD)
+    ADD_DEFINITIONS("-DBUILD_WITH_SYSTEMD")
+ENDIF (BUILD_WITH_SYSTEMD)
+
 SET(TARGET_ASKUSER "askuser")
 SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
@@ -78,5 +94,9 @@ SET(TARGET_TEST "askuser-test")
 SET(TARGET_TESTS "askuser-tests")
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(systemd)
+
+IF (BUILD_WITH_SYSTEMD)
+    ADD_SUBDIRECTORY(systemd)
+ENDIF (BUILD_WITH_SYSTEMD)
+
 ADD_SUBDIRECTORY(test)
