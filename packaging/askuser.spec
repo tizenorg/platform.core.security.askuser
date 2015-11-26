@@ -84,7 +84,11 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
         -DCMAKE_BUILD_TYPE=%{?build_type} \
         -DBUILD_WITH_SYSTEMD_DAEMON=%{?with_systemd_daemon} \
         -DBUILD_WITH_SYSTEMD_JOURNAL=ON \
-        -DCMAKE_VERBOSE_MAKEFILE=ON
+        -DCMAKE_VERBOSE_MAKEFILE=ON \
+        -DLIB_DIR:PATH=%{_libdir} \
+        -DBIN_DIR:PATH=%{_bindir} \
+        -DSYSTEMD_UNIT_DIR:PATH=%{_unitdir} \
+        -DSYSTEMD_USER_UNIT_DIR:PATH=%{_unitdir_user}
 make %{?jobs:-j%jobs}
 
 %install
@@ -134,7 +138,7 @@ systemctl restart cynara.service
 %license LICENSE
 %attr(755, root, root) /usr/bin/askuser
 %if %{with_systemd_daemon}
-/usr/lib/systemd/system/askuser.service
+%{_unitdir}/askuser.service
 %endif
 
 %files -n askuser-notification
@@ -142,7 +146,7 @@ systemctl restart cynara.service
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
 %if %{with_systemd_daemon}
-/usr/lib/systemd/user/askuser-notification.service
+%{_unitdir_user}/askuser-notification.service
 %endif
 /usr/share/locale/en/LC_MESSAGES/askuser.mo
 /usr/share/locale/pl/LC_MESSAGES/askuser.mo
@@ -161,6 +165,6 @@ systemctl restart cynara.service
 %files -n askuser-test
 %manifest askuser-test.manifest
 %license LICENSE
-%attr(755,root,root) /usr/bin/askuser-test
-%attr(755,root,root) /usr/bin/askuser-tests
+%attr(755,root,root) %{_bindir}/askuser-test
+%attr(755,root,root) %{_bindir}/askuser-tests
 

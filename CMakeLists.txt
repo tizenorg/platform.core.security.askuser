@@ -27,6 +27,7 @@ set(ASKUSER_VERSION 0.1.0)
 
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckCXXCompilerFlag)
+INCLUDE(GNUInstallDirs)
 
 ########################## search for packages ################################
 
@@ -48,12 +49,27 @@ ELSE()
     ENDIF ()
 ENDIF (SYSTEMD_DEP_FOUND)
 
-#############################  install dirs  ##################################
+########################  directory configuration  ############################
 
-SET(BIN_INSTALL_DIR
-    "${CMAKE_INSTALL_PREFIX}/bin"
+SET(LIB_DIR
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
     CACHE PATH
-    "Binary installation directory")
+    "Object code libraries directory")
+
+SET(BIN_DIR
+    "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}"
+    CACHE PATH
+    "User executables directory")
+
+SET(SYSTEMD_UNIT_DIR
+    "${CMAKE_INSTALL_PREFIX}/lib/systemd/system"
+    CACHE PATH
+    "Systemd system unit file directory")
+
+SET(SYSTEMD_USER_UNIT_DIR
+    "${CMAKE_INSTALL_PREFIX}/lib/systemd/user"
+    CACHE PATH
+    "Systemd system unit file directory")
 
 ############################# compiler flags ##################################
 
