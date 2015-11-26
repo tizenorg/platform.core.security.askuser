@@ -31,9 +31,12 @@
 #include <translator/Translator.h>
 #include <types/AgentErrorMsg.h>
 #include <types/SupportedTypes.h>
-#include <ui/NotificationBackend.h>
 
 #include <log/alog.h>
+
+#ifdef BUILD_WITH_NOTIFICATION
+#include <ui/NotificationBackend.h>
+#endif
 
 #include "Agent.h"
 
@@ -204,10 +207,18 @@ void Agent::processUIResponse(const Response &response) {
     dismissUI(response.id());
 }
 
+AskUIInterface* Agent::createBackend() {
+#ifdef BUILD_WITH_NOTIFICATION
+    return new NotificationBackend();
+#else
+#error "No suitable backend to use"
+#endif
+}
+
 bool Agent::startUIForRequest(Request *request) {
     auto data = Translator::Agent::dataToRequest(request->data());
 
-    AskUIInterfacePtr ui(new NotificationBackend());
+    AskUIInterfacePtr ui(createBackend());
 
     auto handler = [&](RequestId requestId, UIResponseType resultType) -> void {
                        UIResponseHandler(requestId, resultType);
