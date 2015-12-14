@@ -31,7 +31,7 @@
 #include <attributes/attributes.h>
 
 #include <log/alog.h>
-
+#include <bundle_internal.h>
 #include "AskUINotificationBackend.h"
 
 namespace {
