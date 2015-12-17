@@ -165,7 +165,7 @@ bool AskUINotificationBackend::createUI(const std::string &client, const std::st
         return false;
     }
 
-    if (bundle_add(b, "buttons", tmpBuffer)) {
+    if (bundle_add_str(b, "buttons", tmpBuffer)) {
         int erryes = errno;
         ALOGE("Unable to add button to bundle: <" << strerror(erryes) << ">");
         bundle_free(b);
