@@ -22,6 +22,7 @@ PKG_CHECK_MODULES(AGENT_DEP
     cynara-plugin
     notification
     libsystemd-daemon
+    capi-security-privilege-manager
     )
 
 SET(ASKUSER_AGENT_PATH ${ASKUSER_PATH}/agent)
