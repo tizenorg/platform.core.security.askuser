@@ -9,7 +9,7 @@ Source1001:    %{name}.manifest
 Source1002:    libaskuser-common.manifest
 Source1003:    askuser-plugins.manifest
 Source1004:    askuser-test.manifest
-BuildRequires: capi-security-privilege-manager-devel
+BuildRequires: security-privilege-manager-devel
 BuildRequires: cmake
 BuildRequires: gettext-tools
 BuildRequires: pkgconfig(capi-base-common)
