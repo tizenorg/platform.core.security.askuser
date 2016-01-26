@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
+# Copyright (c) 2014-2016 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ PKG_CHECK_MODULES(AGENT_DEP
     cynara-plugin
     notification
     libsystemd-daemon
+    security-privilege-manager
     )
 
 SET(ASKUSER_AGENT_PATH ${ASKUSER_PATH}/agent)
@@ -49,7 +50,6 @@ TARGET_LINK_LIBRARIES(${TARGET_ASKUSER}
     ${AGENT_DEP_LIBRARIES}
     ${ASKUSER_DEP_LIBRARIES}
     ${TARGET_ASKUSER_COMMON}
-    -lcapi-security-privilege-manager
     )
 
 INSTALL(TARGETS ${TARGET_ASKUSER} DESTINATION ${BIN_INSTALL_DIR})
