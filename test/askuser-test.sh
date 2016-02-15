@@ -8,26 +8,6 @@ SESSION="__test_session"
 if [ "$1" == "" ]; then
 	echo "Script usage:"
 	echo "  $0 run    - Run tests."
-	echo "  $0 check  - Check if notifiaction system is operational."
-	echo "  $0 rescue - Try to heal notification system."
-	exit 0
-fi
-
-if [ "$1" == "check" ]; then
-	if [ ! -x /usr/bin/send-notification ]; then
-		zypper install notification-service-test
-		sleep 1
-	fi
-	sudo -u alice send-notification --title="MyNotification" --content="MyMessage" --icon="/usr/share/weston/terminal.png"
-	echo You should see notification window now. If not, rerun the script with 'rescue' argument.
-	exit 0
-fi
-
-if [ "$1" == "rescue" ]; then
-	rm /tmp/.notification.service
-	systemctl restart notifications
-	systemctl restart notifications-display
-	$0 test
 	exit 0
 fi
 
