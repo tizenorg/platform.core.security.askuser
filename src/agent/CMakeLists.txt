@@ -20,7 +20,6 @@ PKG_CHECK_MODULES(AGENT_DEP
     REQUIRED
     cynara-agent
     cynara-plugin
-    notification
     libsystemd-daemon
     security-privilege-manager
     )
@@ -32,7 +31,6 @@ SET(ASKUSER_SOURCES
     ${ASKUSER_AGENT_PATH}/main/Agent.cpp
     ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
     ${ASKUSER_AGENT_PATH}/main/main.cpp
-    ${ASKUSER_AGENT_PATH}/ui/AskUINotificationBackend.cpp
     ${ASKUSER_AGENT_PATH}/ui/AskUIPopupBackend.cpp
     ${ASKUSER_AGENT_PATH}/ui/popup-runner.cpp
     ${ASKUSER_AGENT_PATH}/ui/serialization.cpp
