@@ -20,7 +20,6 @@
  * @brief       This file implements class for ask user window
  */
 
-#include <bundle.h>
 #include <cerrno>
 #include <csignal>
 #include <cstdio>

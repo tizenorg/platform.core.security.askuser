@@ -34,7 +34,6 @@
 
 #include <log/alog.h>
 #include "Agent.h"
-#include <ui/AskUINotificationBackend.h>
 #include <ui/AskUIPopupBackend.h>
 
 namespace AskUser {
