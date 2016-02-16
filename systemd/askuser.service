@@ -15,8 +15,8 @@ NoNewPrivileges=true
 
 EnvironmentFile=-/etc/sysconfig/enlightenment
 # Makes popup bigger
-Environment="ELM_SCALE=4.0"
-#Environment="ASKUSER_LOG_LEVEL=LOG_DEBUG"
+Environment="ELM_SCALE=2.0"
+Environment="ASKUSER_LOG_LEVEL=LOG_DEBUG"
 
 [Install]
 WantedBy=multi-user.target

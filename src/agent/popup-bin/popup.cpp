@@ -46,25 +46,15 @@ void on_done(void) {
 }
 
 void allow_answer(void *data, Evas_Object * /* obj */, void * /* event_info */) {
-    ALOGD("allow_answer");
+    ALOGD("deny_answer");
     if (data == NULL) {
         ALOGE("data is NULL; return");
         return;
     }
-    struct cert_checker_popup_data *pdp = static_cast <struct cert_checker_popup_data *> (data);
-    if (elm_check_state_get(pdp->check_life)) {
-        ALOGD("remember_life is set");
-        pdp->result = UIResponseType::URT_YES_LIFE;
-    }
-    else if (elm_check_state_get(pdp->check_session)) {
-        ALOGD("remember_session is set");
-        pdp->result = UIResponseType::URT_YES_SESSION;
-    }
-    else {
-        ALOGD("No flag is set");
-        pdp->result = UIResponseType::URT_YES_ONCE;
-    }
 
+    struct cert_checker_popup_data *pdp = static_cast <struct cert_checker_popup_data *> (data);
+    ALOGD("No flag is set");
+    pdp->result = UIResponseType::URT_YES_LIFE;
     on_done();
 }
 
@@ -74,20 +64,23 @@ void deny_answer(void *data, Evas_Object * /* obj */, void * /* event_info */) {
         ALOGE("data is NULL; return");
         return;
     }
+
     struct cert_checker_popup_data *pdp = static_cast <struct cert_checker_popup_data *> (data);
-    if (elm_check_state_get(pdp->check_life)) {
-        ALOGD("remember_life is set");
-        pdp->result = UIResponseType::URT_NO_LIFE;
-    }
-    else if (elm_check_state_get(pdp->check_session)) {
-        ALOGD("remember_session is set");
-        pdp->result = UIResponseType::URT_NO_SESSION;
-    }
-    else {
-        ALOGD("No flag is set");
-        pdp->result = UIResponseType::URT_NO_ONCE;
+    ALOGD("No flag is set");
+    pdp->result = UIResponseType::URT_NO_LIFE;
+    on_done();
+}
+
+void deny_once_answer(void *data, Evas_Object * /* obj */, void * /* event_info */) {
+    ALOGD("deny_answer");
+    if (data == NULL) {
+        ALOGE("data is NULL; return");
+        return;
     }
 
+    struct cert_checker_popup_data *pdp = static_cast <struct cert_checker_popup_data *> (data);
+    ALOGD("No flag is set");
+    pdp->result = UIResponseType::URT_NO_ONCE;
     on_done();
 }
 
@@ -99,82 +92,73 @@ bool show_popup(struct cert_checker_popup_data *pdp) {
         return false;
     }
 
-    pdp->win = elm_win_add(NULL,
+    Evas_Object *win = elm_win_add(NULL,
             dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"),
-            ELM_WIN_NOTIFICATION);
+            ELM_WIN_UTILITY);
 
     elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
-    elm_win_autodel_set(pdp->win, EINA_TRUE);
-    evas_object_show(pdp->win);
-    elm_win_indicator_opacity_set(pdp->win, ELM_WIN_INDICATOR_TRANSLUCENT);
+    elm_win_autodel_set(win, EINA_TRUE);
+    elm_win_alpha_set(win, EINA_TRUE);
 
-    pdp->popup = elm_popup_add(pdp->win);
+    // FIXME: unfocused event is trigered on top menu slide solution: find better one event if possible
+    evas_object_smart_callback_add(win, "unfocused", deny_once_answer, pdp);
 
-    pdp->box = elm_box_add(pdp->popup);
-    evas_object_size_hint_weight_set(pdp->box, EVAS_HINT_EXPAND, 0);
-    evas_object_size_hint_align_set(pdp->box, EVAS_HINT_FILL, 0.0);
+    Evas_Object *popup = elm_popup_add(win);
+    elm_object_part_text_set(popup, "title,text",
+                             dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"));
 
-    pdp->title = elm_label_add(pdp->popup);
-    elm_object_style_set(pdp->title, "elm.text.title");
-    elm_object_text_set(pdp->title, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"));
-    evas_object_show(pdp->title);
-    elm_box_pack_end(pdp->box, pdp->title);
+    Evas_Object *box = elm_box_add(popup);
+    evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, 0);
+    evas_object_size_hint_align_set(box, EVAS_HINT_FILL, 0.0);
 
-    pdp->content = elm_label_add(pdp->popup);
-    elm_object_style_set(pdp->content, "elm.swallow.content");
-    elm_label_line_wrap_set(pdp->content, ELM_WRAP_MIXED);
+    Evas_Object *content = elm_label_add(popup);
+    elm_object_style_set(content, "elm.swallow.content");
+    elm_label_line_wrap_set(content, ELM_WRAP_MIXED);
 
+    // popup text
     int ret;
     char *messageFormat = dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE_NO_NEWLINE");
     char tmpBuffer[BUFSIZ];
-    ret = std::snprintf(tmpBuffer, sizeof(tmpBuffer), messageFormat,
-            pdp->client.c_str(),
-            pdp->user.c_str(),
-            pdp->privilege.c_str());
+    ret = std::snprintf(tmpBuffer, sizeof(tmpBuffer), messageFormat, pdp->client.c_str(),
+                        pdp->user.c_str(), pdp->privilege.c_str());
 
     if (ret < 0) {
         int erryes = errno;
         ALOGE("sprintf failed with error: <" << strerror(erryes) << ">");
         return false;
     }
-
-    elm_object_text_set(pdp->content, tmpBuffer);
+    elm_object_text_set(content, tmpBuffer);
     ALOGD("Popup label: " << tmpBuffer);
-    evas_object_size_hint_weight_set(pdp->content, EVAS_HINT_EXPAND, 0.0);
-    evas_object_size_hint_align_set(pdp->content, EVAS_HINT_FILL, EVAS_HINT_FILL);
-    evas_object_show(pdp->content);
-    elm_box_pack_end(pdp->box, pdp->content);
 
-    elm_object_part_content_set(pdp->popup, "default", pdp->box);
+    evas_object_size_hint_weight_set(content, EVAS_HINT_EXPAND, 0.0);
+    evas_object_size_hint_align_set(content, EVAS_HINT_FILL, EVAS_HINT_FILL);
+    evas_object_show(content);
+    elm_box_pack_end(box, content);
 
-    pdp->keep_button = elm_button_add(pdp->popup);
-    elm_object_style_set(pdp->keep_button, "elm.swallow.content.button1");
-    elm_object_text_set(pdp->keep_button, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_YES_ONCE"));
-    elm_object_part_content_set(pdp->popup, "button1", pdp->keep_button);
-    evas_object_smart_callback_add(pdp->keep_button, "clicked", allow_answer, pdp);
+    elm_object_part_content_set(popup, "default", box);
 
-    pdp->uninstall_button = elm_button_add(pdp->popup);
-    elm_object_style_set(pdp->uninstall_button, "elm.swallow.content.button2");
-    elm_object_text_set(pdp->uninstall_button, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_NO_ONCE"));
-    elm_object_part_content_set(pdp->popup, "button2", pdp->uninstall_button);
-    evas_object_smart_callback_add(pdp->uninstall_button, "clicked", deny_answer, pdp);
+    // allow
+    Evas_Object *allow_button = elm_button_add(popup);
+    elm_object_text_set(allow_button, "Allow");
+    elm_object_part_content_set(popup, "button1", allow_button);
+    evas_object_smart_callback_add(allow_button, "clicked", allow_answer, pdp);
 
-    pdp->check_session = elm_check_add(pdp->box);
-    elm_object_style_set(pdp->check_session, "check");
-    elm_object_text_set(pdp->check_session, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_SESSION"));
-    evas_object_show(pdp->check_session);
-    elm_box_pack_end(pdp->box, pdp->check_session);
+    // never
+    Evas_Object *never_button = elm_button_add(popup);
+    elm_object_text_set(never_button, "Never");
+    elm_object_part_content_set(popup, "button2", never_button);
+    evas_object_smart_callback_add(never_button, "clicked", deny_answer, pdp);
 
-    pdp->check_life = elm_check_add(pdp->box);
-    elm_object_style_set(pdp->check_life, "check");
-    elm_object_text_set(pdp->check_life, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_LIFE"));
-    evas_object_show(pdp->check_life);
-    elm_box_pack_end(pdp->box, pdp->check_life);
+    // deny
+    Evas_Object *deny_button = elm_button_add(popup);
+    elm_object_text_set(deny_button, "Deny");
+    elm_object_part_content_set(popup, "button3", deny_button);
+    evas_object_smart_callback_add(deny_button, "clicked", deny_once_answer, pdp);
 
-    evas_object_show(pdp->popup);
+    evas_object_show(popup);
 
     // Showing the popup window
-    evas_object_show(pdp->win);
+    evas_object_show(win);
 
     // Run the efl mainloop
     elm_run();

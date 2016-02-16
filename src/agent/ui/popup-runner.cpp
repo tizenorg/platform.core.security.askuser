@@ -41,14 +41,8 @@ std::string response_to_str(UIResponseType response) {
     switch (response) {
     case UIResponseType::URT_NO_ONCE:
         return "URT_NO_ONCE";
-    case UIResponseType::URT_NO_SESSION:
-        return "URT_NO_SESSION";
     case UIResponseType::URT_NO_LIFE:
         return "URT_NO_LIFE";
-    case UIResponseType::URT_YES_ONCE:
-        return "URT_YES_ONCE";
-    case UIResponseType::URT_YES_SESSION:
-        return "URT_YES_SESSION";
     case UIResponseType::URT_YES_LIFE:
         return "URT_YES_LIFE";
     default:

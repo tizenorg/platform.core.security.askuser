@@ -28,14 +28,4 @@ struct cert_checker_popup_data {
     std::string user;
     std::string privilege;
     AskUser::Agent::UIResponseType result;
-
-    Evas_Object *popup       = NULL;
-    Evas_Object *win         = NULL;
-    Evas_Object *box         = NULL;
-    Evas_Object *title       = NULL;
-    Evas_Object *content     = NULL;
-    Evas_Object *keep_button = NULL;
-    Evas_Object *uninstall_button = NULL;
-    Evas_Object *check_session = NULL;
-    Evas_Object *check_life    = NULL;
 };

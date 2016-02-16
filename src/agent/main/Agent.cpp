@@ -250,18 +250,11 @@ void Agent::dismissUI(RequestId requestId) {
 
 Cynara::PolicyType Agent::UIResponseToPolicyType(UIResponseType responseType) {
     switch (responseType) {
-        case URT_YES_ONCE:
-            return AskUser::SupportedTypes::Client::ALLOW_ONCE;
-        case URT_YES_SESSION:
-            return AskUser::SupportedTypes::Client::ALLOW_PER_SESSION;
         case URT_YES_LIFE:
             return AskUser::SupportedTypes::Client::ALLOW_PER_LIFE;
-        case URT_NO_ONCE:
-            return AskUser::SupportedTypes::Client::DENY_ONCE;
-        case URT_NO_SESSION:
-            return AskUser::SupportedTypes::Client::DENY_PER_SESSION;
         case URT_NO_LIFE:
             return AskUser::SupportedTypes::Client::DENY_PER_LIFE;
+        case URT_NO_ONCE:
         default:
             return AskUser::SupportedTypes::Client::DENY_ONCE;
     }

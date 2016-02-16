@@ -38,44 +38,17 @@ if [ "$1" == "run" ]; then
 	check -1
 	echo
 
-	echo -n Press \"No:\"
+	echo -n Press \"Deny:\"
 	check -1
 	echo
 
-	echo -n Press \"No session:\"
-	check -3
-	echo
-
-	echo -n Press \"No restart:\"
-	check -3
-	check -3
+	echo -n Press \"Allow:\"
+        check 10
 	echo
 
 	systemctl restart cynara
-	sleep 1
-
-	echo -n Press \"No:\"
-	check -1
-	echo
-
-	echo -n Press \"Yes:\"
-	check 1
-	echo
-
-	echo -n Press \"Yes session:\"
-	check 3
-	echo
-
-	echo -n Press \"Yes restart:\"
-	check 3
-	check 3
-	echo
-
-	systemctl restart cynara
-	sleep 1
-
-	echo -n Press \"Yes:\"
-	check 1
+	echo -n Press \"Never:\"
+	check -10
 	echo
 
 	echo -e "Tests succeeded: \033[1;32m$SUCCESS\033[0m Tests failed: \033[1;31m$ERRORS\033[0m"
