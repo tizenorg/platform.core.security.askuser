@@ -11,6 +11,7 @@ Source1003:    askuser-plugins.manifest
 Source1004:    askuser-test.manifest
 BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: cmake
+BuildRequires: libwayland-egl
 BuildRequires: gettext-tools
 BuildRequires: pkgconfig(capi-base-common)
 BuildRequires: pkgconfig(cynara-agent)
