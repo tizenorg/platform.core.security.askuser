@@ -32,6 +32,7 @@
 #include <log/alog.h>
 #include <ui/popup-runner.h>
 #include <ui/AskUIPopupBackend.h>
+#include <util/safe_function.h>
 
 namespace { // anonymous
 
@@ -321,7 +322,7 @@ UIResponseType Popup_runner::wait_for_response() {
         tmp = TEMP_FAILURE_RETRY(read(m_fd_send_to_parent, result + count, buff_size - count));
         if (tmp < 0) {
             ALOGE("Error while reading popup response, read returned: " << tmp);
-            ALOGE("errno: " << strerror(errno));
+            ALOGE("errno: " << safe_strerror(errno));
             goto error;
         }
         if (tmp > 0) {
