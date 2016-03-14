@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     cynara_configuration_destroy(cynara_config);
 
     while (repeats-- && !dead) {
-        sprintf(clientPlus, "%s_%d", client, repeats);
+        snprintf(clientPlus, sizeof(clientPlus), "%s_%d", client, repeats);
         ret = cynara_check(cynar, client, session, user, privilege);
         printf("get ret [%d]: %s\n", ret, cystrerr(ret));
         result += ret == CYNARA_API_ACCESS_ALLOWED ? 1 : -1;
