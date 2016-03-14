@@ -320,8 +320,9 @@ UIResponseType Popup_runner::wait_for_response() {
     do {
         tmp = TEMP_FAILURE_RETRY(read(m_fd_send_to_parent, result + count, buff_size - count));
         if (tmp < 0) {
+            char strerr_buff[256];
             ALOGE("Error while reading popup response, read returned: " << tmp);
-            ALOGE("errno: " << strerror(errno));
+            ALOGE("errno: " << strerror_r(errno, strerr_buff, sizeof(strerr_buff)));
             goto error;
         }
         if (tmp > 0) {

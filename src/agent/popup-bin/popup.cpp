@@ -134,7 +134,8 @@ bool show_popup(struct cert_checker_popup_data *pdp) {
 
     if (ret < 0) {
         int erryes = errno;
-        ALOGE("sprintf failed with error: <" << strerror(erryes) << ">");
+        char strerr_buff[256];
+        ALOGE("sprintf failed with error: <" << strerror_r(erryes, strerr_buff, sizeof(strerr_buff)) << ">");
         return false;
     }
 
@@ -292,10 +293,11 @@ elm_main(int argc, char **argv)
     do {
         tmp = TEMP_FAILURE_RETRY(read(pipe_in, line + count, buff_size - count));
         if (tmp < 0) {
+            char strerr_buff[256];
             close(pipe_in);
             close(pipe_out);
             ALOGE("read returned a negative value (" << count << ")");
-            ALOGE("errno: " << strerror(errno));
+            ALOGE("errno: " << strerror_r(errno, strerr_buff, sizeof(strerr_buff)));
             ALOGE("Exit popup - ERROR");
             return popup_status::EXIT_ERROR;
         }
