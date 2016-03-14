@@ -47,6 +47,7 @@ INCLUDE_DIRECTORIES(
 SET(COMMON_SOURCES
     ${COMMON_PATH}/translator/Translator.cpp
     ${COMMON_PATH}/types/AgentErrorMsg.cpp
+    ${COMMON_PATH}/util/SafeFunction.cpp
     )
 
 ADD_DEFINITIONS("-fvisibility=default")

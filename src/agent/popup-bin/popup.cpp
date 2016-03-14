@@ -31,11 +31,13 @@
 #include <Elementary.h>
 
 #include <log/alog.h>
+#include <util/SafeFunction.h>
 #include "popup.h"
 #include "popup-runner.h"
 #include "serialization.h"
 
 using namespace AskUser::Agent;
+using namespace AskUser::Util;
 
 namespace { // anonymous
 
@@ -134,7 +136,7 @@ bool show_popup(struct cert_checker_popup_data *pdp) {
 
     if (ret < 0) {
         int erryes = errno;
-        ALOGE("sprintf failed with error: <" << strerror(erryes) << ">");
+        ALOGE("sprintf failed with error: <" << safeStrError(erryes) << ">");
         return false;
     }
 
@@ -295,7 +297,7 @@ elm_main(int argc, char **argv)
             close(pipe_in);
             close(pipe_out);
             ALOGE("read returned a negative value (" << count << ")");
-            ALOGE("errno: " << strerror(errno));
+            ALOGE("errno: " << safeStrError(errno));
             ALOGE("Exit popup - ERROR");
             return popup_status::EXIT_ERROR;
         }
