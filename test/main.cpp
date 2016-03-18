@@ -45,7 +45,7 @@ void check_cynara_return(std::string func, int ret) {
   }
 }
 
-int main(int, char **)
+int main(int n, char **argc)
 {
   int ret;
 
@@ -56,7 +56,11 @@ int main(int, char **)
 
   strcpy(client, "User::App::org.tizen.task-mgr");
   strcpy(user, "5001");
-  strcpy(privilege, "http://tizen.org/privilege/appmanager.kill");
+
+  if (n > 1)
+    strcpy(privilege, argc[1]);
+  else
+    strcpy(privilege, "http://tizen.org/privilege/appmanager.kill");
   strcpy(bucket, "");
 
   try {
