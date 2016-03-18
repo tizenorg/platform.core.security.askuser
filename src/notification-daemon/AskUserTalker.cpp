@@ -93,7 +93,9 @@ void setSecurityLevel(const std::string &app, const std::string &perm, GuiRespon
 } /* namespace */
 
 
-AskUserTalker::AskUserTalker(GuiRunner *gui) : m_gui(gui) {}
+AskUserTalker::AskUserTalker(GuiRunner *gui) : m_gui(gui) {
+  m_gui->setDropHandler([&](){return this->shouldDismiss();});
+}
 
 AskUserTalker::~AskUserTalker()
 {
@@ -149,6 +151,9 @@ void AskUserTalker::run()
     response.response = m_gui->popupRun(request.app, request.perm);
     response.id = request.id;
 
+    if (response.response == GuiResponse::None)
+      continue;
+
     len = send(sockfd, &response, sizeof(response), 0);
     if (len < 0)
       throw Exception("Sending data to socket error", errno);
@@ -173,4 +178,26 @@ void AskUserTalker::stop()
 {
   m_gui->stop();
   close(sockfd);
+}
+
+bool AskUserTalker::shouldDismiss()
+{
+  struct timeval time;
+  time.tv_usec = 0;
+  time.tv_sec = 0;
+  fd_set set;
+  FD_ZERO(&set);
+  FD_SET(sockfd, &set);
+
+  int ret = select(sockfd + 1, &set, nullptr, nullptr, &time);
+  if (ret == 0)
+    return false;
+
+  uint8_t a = 0x00;
+  recv(sockfd, &a, sizeof(a), 0);
+
+  if (a != 0xDE)
+    throw Exception("Incorrect dismiss flag");
+
+  return true;
 }

@@ -21,6 +21,7 @@
 
 #include "GuiRunner.h"
 
+#include <common/Exception.h>
 #include <common/Translator.h>
 #include <privilegemgr/privilege_info.h>
 
@@ -52,6 +53,20 @@ void deny_answer(void *data, Evas_Object *, void *)
 void never_answer(void *data, Evas_Object *, void *)
 {
   answer(data, GuiResponse::Never);
+}
+
+Eina_Bool timeout_answer(void *data) {
+  if (!data)
+    return ECORE_CALLBACK_RENEW;
+
+  drop *d = static_cast<drop*>(data);
+
+  if (d->handle()) {
+    evas_object_hide(d->popup->win);
+    elm_exit();
+  }
+
+  return ECORE_CALLBACK_RENEW;
 }
 
 std::string friendlyPrivilegeName(const std::string &privilege)
@@ -131,10 +146,15 @@ void GuiRunner::initialize()
 
 GuiResponse GuiRunner::popupRun(const std::string &app, const std::string &perm)
 {
+  if (!m_dropHandler)
+    throw Exception("DropHandler was not initialized");
+
   if (!initialized)
     initialize();
 
   running = true;
+  drop *Drop = new drop({m_dropHandler, popupData});
+  timer = ecore_timer_add(.1, timeout_answer, Drop);
 
   elm_object_text_set(content, std::string("Application <b>" + app + "</b> requested privilege <b>"
                                            + friendlyPrivilegeName(perm) + "</b>").c_str());
@@ -142,13 +162,19 @@ GuiResponse GuiRunner::popupRun(const std::string &app, const std::string &perm)
   evas_object_show(popup);
   evas_object_show(win);
 
-  popupData->type = GuiResponse::Error;
+  popupData->type = GuiResponse::None;
 
   elm_run();
 
+  ecore_timer_del(timer);
   running = false;
 
   return popupData->type;
+}
+
+void GuiRunner::setDropHandler(DropHandler dropHandler)
+{
+  m_dropHandler = dropHandler;
 }
 
 void GuiRunner::stop()
@@ -158,5 +184,5 @@ void GuiRunner::stop()
     elm_exit();
   }
 
-  //elm_shutdown();
+  elm_shutdown();
 }

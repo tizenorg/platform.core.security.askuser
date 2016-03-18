@@ -40,6 +40,8 @@ public:
   void run();
   void stop();
 
+  bool shouldDismiss();
+
 private:
   GuiRunner *m_gui;
   int sockfd;
