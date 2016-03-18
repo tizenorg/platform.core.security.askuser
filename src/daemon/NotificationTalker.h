@@ -73,6 +73,7 @@ private:
   void addRequest(CynaraRequestPtr request);
   void removeRequest(CynaraRequestPtr request);
   void sendRequest(int fd, const CynaraRequestPtr request);
+  void sendDismiss(int fd);
 };
 
 #endif /* __NOTIFICATION_TALKER__ */

@@ -104,6 +104,13 @@ void NotificationTalker::removeRequest(CynaraRequestPtr request)
         );
 
     if (it != queue.end()) {
+      if (it == queue.begin()) {
+        auto user = std::get<0>(pair);
+        auto it2 = m_userToFd.find(user);
+        if (it2 != m_userToFd.end())
+          sendDismiss(std::get<1>(*it2));
+      }
+
       queue.erase(it);
     }
   }
@@ -141,6 +148,15 @@ void NotificationTalker::sendRequest(int fd, const CynaraRequestPtr request)
   len = send(fd, data.c_str(), size, 0);
   if (len <= 0)
     throw Exception("Error sending data to socket", errno);
+}
+
+void NotificationTalker::sendDismiss(int fd)
+{
+  if (!m_fdStatus[fd]) {
+    uint8_t close = 0xDE;
+    send(fd, &close, sizeof(close), 0);
+    m_fdStatus[fd] = true;
+  }
 }
 
 void NotificationTalker::parseResponse(Response response, int fd)
@@ -256,7 +272,6 @@ void NotificationTalker::run()
       FD_SET(fd ,&m_fdSet);
       nfds = fd > nfds ? fd : nfds;
     }
-    nfds++;
 
     int rv = select(nfds + 1, &m_fdSet, nullptr, nullptr, &timeout);
 

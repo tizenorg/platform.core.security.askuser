@@ -23,14 +23,22 @@
 #define __GUI_RUNNER__
 
 #include <Elementary.h>
+#include <functional>
 #include <string>
 
 #include <common/Types.h>
 #include <common/log.h>
 
+typedef std::function<bool()> DropHandler;
+
 struct PopupData {
   GuiResponse type;
   Evas_Object *win;
+};
+
+struct drop {
+  DropHandler handle;
+  PopupData *popup;
 };
 
 class GuiRunner
@@ -39,10 +47,13 @@ public:
   GuiRunner();
 
   GuiResponse popupRun(const std::string &app, const std::string &perm);
+
+  void setDropHandler(DropHandler dropHandler);
   void stop();
 
 private:
   PopupData *popupData;
+  DropHandler m_dropHandler;
 
   Evas_Object *win;
   Evas_Object *popup;
@@ -51,6 +62,7 @@ private:
   Evas_Object *allowButton;
   Evas_Object *neverButton;
   Evas_Object *denyButton;
+  Ecore_Timer *timer;
 
   bool running = false;
   bool initialized = false;
