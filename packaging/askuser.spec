@@ -44,6 +44,12 @@ Summary:    Askuser commons library
 %description -n askuser-plugins
 askuser plugin library with cynara service and client side plugins
 
+%package -n askuser-common
+Summary:    Askuser common library
+
+%description -n askuser-common
+askuser common library with common functionalities
+
 %prep
 %setup -q
 
@@ -95,3 +101,6 @@ systemctl restart askuser.service
 %files -n askuser-plugins
 %{_libdir}/cynara/plugin/client/*
 %{_libdir}/cynara/plugin/service/*
+
+%files -n askuser-common
+%{_libdir}/libaskuser-common.so

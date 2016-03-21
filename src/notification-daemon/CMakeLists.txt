@@ -2,12 +2,10 @@ SET(NOTIF_PATH ${PROJECT_SOURCE_DIR}/src/notification-daemon/)
 
 PKG_CHECK_MODULES(ASKUSER_NOTIFICATION_DEP
     elementary
-    libsystemd-daemon
-    cynara-creds-socket
     cynara-agent
-    cynara-plugin
-    security-privilege-manager
+    libsystemd-daemon
     security-manager
+    security-privilege-manager
 )
 
 INCLUDE_DIRECTORIES(
@@ -16,9 +14,6 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(ASKUSER_NOTIFICATION_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/common/Exception.cpp
-    ${PROJECT_SOURCE_DIR}/src/common/log.cpp
-    ${PROJECT_SOURCE_DIR}/src/common/Translator.cpp
     ${NOTIF_PATH}/main.cpp
     ${NOTIF_PATH}/GuiRunner.cpp
     ${NOTIF_PATH}/AskUserTalker.cpp
@@ -35,6 +30,7 @@ SET_TARGET_PROPERTIES(${TARGET_ASKUSER_NOTIFICATION} PROPERTIES
 
 TARGET_LINK_LIBRARIES(${TARGET_ASKUSER_NOTIFICATION}
     ${ASKUSER_NOTIFICATION_DEP_LIBRARIES}
+    ${TARGET_ASKUSER_COMMON}
     -pie
 )
 

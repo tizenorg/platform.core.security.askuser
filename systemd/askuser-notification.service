@@ -10,7 +10,6 @@ TimeoutStopSec=10
 Restart=always
 NoNewPrivileges=true
 EnvironmentFile=-/run/tizen-system-env
-Environment="ASKUSER_NOTIFICATION_WAIT=10000"
 
 [Install]
 WantedBy=multi-user.target
