@@ -19,6 +19,7 @@
  * @brief       Main askuser notification daemon file
  */
 
+#include <clocale>
 #include <csignal>
 #include <cstdlib>
 #include <string>
@@ -37,6 +38,9 @@ int main()
 {
   using namespace AskUser::Notification;
   init_agent_log();
+
+  char *locale = setlocale(LC_ALL, "");
+  ALOGD("Current locale is: <" << locale << ">");
 
   try {
     AskUserTalkerPtr askUserTalker;
