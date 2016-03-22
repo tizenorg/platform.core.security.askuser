@@ -5,6 +5,11 @@ Release:    1
 Group:      Security/Access Control
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
+Source1001:    %{name}.manifest
+Source1002:    libaskuser-common.manifest
+Source1003:    askuser-plugins.manifest
+Source1004:    askuser-notification.manifest
+Source1005:    askuser-test.manifest
 BuildRequires: cmake
 BuildRequires: gettext-tools
 BuildRequires: libwayland-egl
@@ -25,34 +30,39 @@ BuildRequires: pkgconfig(security-manager)
 Daemon allowing user to grant or deny acces for given application and privilege
 
 %package -n askuser-notification
-Summary: aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Summary: User daemon which shows popup with privilege request
 
 %description -n askuser-notification
-ghhtrh erth rio thjiortjh ioetrj hioe trio tu
+User daemon which shows popup with privilege request
 
 %package -n askuser-test
-Summary: aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Summary: Tool for testing askuser packages
 BuildRequires: pkgconfig(cynara-admin)
 
 %description -n askuser-test
-ghhtrh erth rio thjiortjh ioetrj hioe trio tu
+Simple tool for testing askuser packages and/or showing simple demo
 
 %package -n askuser-plugins
 Requires:   cynara
 Requires:   libcynara-client
-Summary:    Askuser commons library
+Summary:    Askuser cynara plugins
 
 %description -n askuser-plugins
-askuser plugin library with cynara service and client side plugins
+Askuser plugin library with cynara service and client side plugins
 
 %package -n libaskuser-common
 Summary:    Askuser common library
 
 %description -n libaskuser-common
-askuser common library with common functionalities
+Askuser common library with common functionalities
 
 %prep
 %setup -q
+cp -a %{SOURCE1001} .
+cp -a %{SOURCE1002} .
+cp -a %{SOURCE1003} .
+cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -78,36 +88,56 @@ rm -rf %{buildroot}
 %post
 # todo properly use systemd --user
 ln -s /lib/systemd/user/askuser-notification.service \
-/usr/lib/systemd/user/default.target.wants/askuser-notification.service
+/usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
 
 systemctl daemon-reload
 
 if [ $1 = 1 ]; then
-    systemctl enable askuser.service
+    systemctl enable %{name}.service
 fi
 
-systemctl restart askuser.service
+systemctl restart %{name}.service
+
+%preun
+if [ $1 = 0 ]; then
+    systemctl stop %{name}.service
+fi
+
+%postun
+if [ $1 = 0 ]; then
+    systemctl daemon-reload
+fi
 
 %post -n libaskuser-common -p /sbin/ldconfig
 
 %postun -n libaskuser-common -p /sbin/ldconfig
 
 %files
+%manifest %{name}.manifest
+%license LICENSE
 %attr(755, root, root) /usr/bin/askuser
 /usr/lib/systemd/system/askuser.service
 
 %files -n askuser-notification
+%manifest askuser-notification.manifest
+%license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
 /usr/lib/systemd/user/askuser-notification.service
 /usr/share/locale/en/LC_MESSAGES/askuser.mo
 /usr/share/locale/pl/LC_MESSAGES/askuser.mo
 
 %files -n askuser-test
+%manifest askuser-test.manifest
+%license LICENSE
 %attr(755,root,root) /usr/bin/askuser-test
 
 %files -n askuser-plugins
+%manifest askuser-plugins.manifest
+%license LICENSE
 %{_libdir}/cynara/plugin/client/*
 %{_libdir}/cynara/plugin/service/*
 
 %files -n libaskuser-common
-%{_libdir}/libaskuser-common.so
+%manifest libaskuser-common.manifest
+%license LICENSE
+%{_libdir}/libaskuser-common.so*
