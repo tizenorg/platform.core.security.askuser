@@ -23,6 +23,7 @@
 
 #include <common/Exception.h>
 #include <common/Translator.h>
+#include <libintl.h>
 #include <privilegemgr/privilege_info.h>
 
 namespace {
@@ -94,14 +95,16 @@ void GuiRunner::initialize()
   elm_init(0, NULL);
 
   //placeholder
-  win = elm_win_add(NULL, "Privilege", ELM_WIN_DOCK);
+  win = elm_win_add(NULL, dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"),
+                                   ELM_WIN_DOCK);
   elm_win_autodel_set(win, EINA_TRUE);
   elm_win_override_set(win, EINA_TRUE);
   elm_win_alpha_set(win, EINA_TRUE);
 
   // popup
   popup = elm_popup_add(win);
-  elm_object_part_text_set(popup, "title,text", "Privilege request");
+  elm_object_part_text_set(popup, "title,text", dgettext(PROJECT_NAME,
+                                                         "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"));
 
   // box
   box = elm_box_add(popup);
@@ -115,7 +118,6 @@ void GuiRunner::initialize()
   evas_object_size_hint_weight_set(content, EVAS_HINT_EXPAND, 0.0);
   evas_object_size_hint_align_set(content, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-  //elm_object_text_set(content, "perm_content");
   evas_object_show(content);
   elm_box_pack_end(box, content);
   elm_object_part_content_set(popup, "default", box);
@@ -123,14 +125,17 @@ void GuiRunner::initialize()
   // buttons
   allowButton = elm_button_add(popup);
   elm_object_part_content_set(popup, "button1", allowButton);
-  elm_object_text_set(allowButton, "Allow");
+  elm_object_text_set(allowButton, dgettext(PROJECT_NAME,
+                                            "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_ALLOW"));
 
   neverButton = elm_button_add(popup);
-  elm_object_text_set(neverButton, "Never");
+  elm_object_text_set(neverButton, dgettext(PROJECT_NAME,
+                                            "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_NEVER"));
   elm_object_part_content_set(popup, "button2", neverButton);
 
   denyButton = elm_button_add(popup);
-  elm_object_text_set(denyButton, "Deny");
+  elm_object_text_set(denyButton, dgettext(PROJECT_NAME,
+                                           "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_DENY"));
   elm_object_part_content_set(popup, "button3", denyButton);
 
   // callbacks
@@ -156,8 +161,17 @@ GuiResponse GuiRunner::popupRun(const std::string &app, const std::string &perm)
   drop *Drop = new drop({m_dropHandler, popupData});
   timer = ecore_timer_add(.1, timeout_answer, Drop);
 
-  elm_object_text_set(content, std::string("Application <b>" + app + "</b> requested privilege <b>"
-                                           + friendlyPrivilegeName(perm) + "</b>").c_str());
+  // create message
+  char *messageFormat = dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE");
+  char buf[BUFSIZ];
+  int ret = std::snprintf(buf, sizeof(buf), messageFormat,
+                          app.c_str(),
+                          friendlyPrivilegeName(perm).c_str());
+
+  if (ret < 0)
+    throw Exception("snprintf failed", errno);
+
+  elm_object_text_set(content, buf);
 
   evas_object_show(popup);
   evas_object_show(win);

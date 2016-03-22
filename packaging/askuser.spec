@@ -6,6 +6,7 @@ Group:      Security/Access Control
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires: cmake
+BuildRequires: gettext-tools
 BuildRequires: libwayland-egl
 BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(cynara-agent)
@@ -44,10 +45,10 @@ Summary:    Askuser commons library
 %description -n askuser-plugins
 askuser plugin library with cynara service and client side plugins
 
-%package -n askuser-common
+%package -n libaskuser-common
 Summary:    Askuser common library
 
-%description -n askuser-common
+%description -n libaskuser-common
 askuser common library with common functionalities
 
 %prep
@@ -72,7 +73,7 @@ make %{?jobs:-j%jobs}
 %install
 rm -rf %{buildroot}
 %make_install
-# %find_lang %{name}
+%find_lang %{name}
 
 %post
 # todo properly use systemd --user
@@ -87,6 +88,10 @@ fi
 
 systemctl restart askuser.service
 
+%post -n libaskuser-common -p /sbin/ldconfig
+
+%postun -n libaskuser-common -p /sbin/ldconfig
+
 %files
 %attr(755, root, root) /usr/bin/askuser
 /usr/lib/systemd/system/askuser.service
@@ -94,6 +99,8 @@ systemctl restart askuser.service
 %files -n askuser-notification
 %attr(755,root,root) /usr/bin/askuser-notification
 /usr/lib/systemd/user/askuser-notification.service
+/usr/share/locale/en/LC_MESSAGES/askuser.mo
+/usr/share/locale/pl/LC_MESSAGES/askuser.mo
 
 %files -n askuser-test
 %attr(755,root,root) /usr/bin/askuser-test
@@ -102,5 +109,5 @@ systemctl restart askuser.service
 %{_libdir}/cynara/plugin/client/*
 %{_libdir}/cynara/plugin/service/*
 
-%files -n askuser-common
+%files -n libaskuser-common
 %{_libdir}/libaskuser-common.so

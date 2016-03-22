@@ -19,6 +19,7 @@
  * @brief       Main askuser notification daemon file
  */
 
+#include <clocale>
 #include <csignal>
 #include <cstdlib>
 #include <string>
@@ -37,6 +38,9 @@ AskUserTalkerPtr askUserTalker;
 int main()
 {
   init_log();
+
+  char *locale = setlocale(LC_ALL, "");
+  LOGD("Current locale is: <" << locale << ">");
 
   try {
     GuiRunner gui;
