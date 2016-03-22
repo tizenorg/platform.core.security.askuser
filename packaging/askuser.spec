@@ -11,6 +11,7 @@ Source1003:    askuser-plugins.manifest
 Source1004:    libaskuser-common.manifest
 Source1005:    askuser-test.manifest
 BuildRequires: cmake
+BuildRequires: gettext-tools
 BuildRequires: libwayland-egl
 BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(cynara-agent)
@@ -82,6 +83,7 @@ make %{?jobs:-j%jobs}
 %install
 rm -rf %{buildroot}
 %make_install
+%find_lang %{name}
 
 %post
 # todo properly use systemd --user
@@ -124,6 +126,8 @@ systemctl restart cynara.service
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
 /usr/lib/systemd/user/askuser-notification.service
+/usr/share/locale/en/LC_MESSAGES/askuser.mo
+/usr/share/locale/pl/LC_MESSAGES/askuser.mo
 
 %files -n libaskuser-common
 %manifest libaskuser-common.manifest
