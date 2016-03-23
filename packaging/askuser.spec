@@ -9,6 +9,7 @@ Source1001:    %{name}.manifest
 Source1002:    askuser-notification.manifest
 Source1003:    askuser-plugins.manifest
 Source1004:    libaskuser-common.manifest
+Source1005:    askuser-test.manifest
 BuildRequires: cmake
 BuildRequires: libwayland-egl
 BuildRequires: pkgconfig(elementary)
@@ -47,12 +48,20 @@ Summary:    Askuser common library
 %description -n libaskuser-common
 Askuser common library with common functionalities
 
+%package -n askuser-test
+Summary: Tool for testing askuser packages
+BuildRequires: pkgconfig(cynara-admin)
+
+%description -n askuser-test
+Simple tool for testing askuser packages and/or showing simple demo
+
 %prep
 %setup -q
 cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
 cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -126,3 +135,8 @@ systemctl restart cynara.service
 %license LICENSE
 %{_libdir}/cynara/plugin/client/*
 %{_libdir}/cynara/plugin/service/*
+
+%files -n askuser-test
+%manifest askuser-test.manifest
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-test
