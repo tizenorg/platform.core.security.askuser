@@ -1,0 +1,5 @@
+SET(COMMON_PATH ${ASKUSER_PATH}/common)
+
+SET(COMMON_SOURCES
+    ${COMMON_PATH}/log.cpp
+)
