@@ -1,9 +1,32 @@
-#pragma once
+/*
+ *  Copyright (c) 2016 Samsung Electronics Co.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+/**
+ * @file        GuiRunner.h
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Declaration of GuiRunner class
+ */
 
-#include <string>
+#ifndef __GUI_RUNNER__
+#define __GUI_RUNNER__
+
 #include <Elementary.h>
+#include <string>
 
-#include <common/notification-ipc.h>
+#include <common/Types.h>
+#include <common/log.h>
 
 struct PopupData {
   GuiResponse type;
@@ -16,10 +39,9 @@ public:
   GuiRunner();
 
   GuiResponse popupRun(const std::string &app, const std::string &perm);
-
+  void stop();
 
 private:
-
   PopupData *popupData;
 
   Evas_Object *win;
@@ -30,5 +52,10 @@ private:
   Evas_Object *neverButton;
   Evas_Object *denyButton;
 
+  bool running = false;
+  bool initialized = false;
+
   void initialize();
 };
+
+#endif /* __GUI_RUNNER__ */
