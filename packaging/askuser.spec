@@ -92,3 +92,9 @@ rm -rf %{buildroot}
 %manifest libaskuser-common.manifest
 %license LICENSE
 %{_libdir}/libaskuser-common.so*
+
+%files -n askuser-plugins
+%manifest askuser-plugins.manifest
+%license LICENSE
+%{_libdir}/cynara/plugin/client/*
+%{_libdir}/cynara/plugin/service/*

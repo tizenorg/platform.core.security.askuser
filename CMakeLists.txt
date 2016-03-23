@@ -70,6 +70,8 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
 
 SET(TARGET_ASKUSERD "askuser")
 SET(TARGET_ASKUSER_COMMON "askuser-common")
+SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
+SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
 SET(TARGET_ASKUSER_NOTIFICATION "askuser-notification")
 
 ADD_SUBDIRECTORY(src)
