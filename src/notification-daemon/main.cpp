@@ -1,31 +1,59 @@
+/*
+ *  Copyright (c) 2016 Samsung Electronics Co.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+/**
+ * @file        main.cpp
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Main askuser notification daemon file
+ */
+
+#include <csignal>
+#include <cstdlib>
+#include <string>
+#include <systemd/sd-daemon.h>
+#include <thread>
+#include <unistd.h>
+
+#include <common/Exception.h>
+#include <common/log.h>
+
 #include "GuiRunner.h"
 #include "AskUserTalker.h"
 
-#include <iostream>
-#include <csignal>
-#include <cstring>
-#include <thread>
-
-// Handle kill message from systemd
-void kill_handler(int) {
-  //
-}
+AskUserTalkerPtr askUserTalker;
 
 int main()
 {
-  int ret;
-  struct sigaction act;
+  init_log();
 
-  // Install kill handler - TERM signal will be delivered form systemd to kill this service
-  memset(&act, 0, sizeof(act));
-  act.sa_handler = &kill_handler;
+  try {
+    GuiRunner gui;
+    askUserTalker = std::move(AskUserTalkerPtr(new AskUserTalker(&gui)));
 
-  sigaction(SIGKILL, &act, NULL);
-  if ((ret = sigaction(SIGTERM, &act, NULL)) < 0) {
-    return 1;
+    int ret = sd_notify(0, "READY=1");
+    if (ret == 0) {
+        LOGW("Agent was not configured to notify its status");
+    } else if (ret < 0) {
+        LOGE("sd_notify failed: [" << ret << "]");
+    }
+
+    askUserTalker->run();
+
+  } catch (std::exception &e) {
+    LOGE("Askuser-notification stopped because of: <" << e.what() << ">.");
+  } catch (...) {
+    LOGE("Askuser-notification stopped because of unknown unhandled exception.");
   }
-
-  GuiRunner gui;
-  AskUserTalker talker(&gui);
-  talker.run();
 }
