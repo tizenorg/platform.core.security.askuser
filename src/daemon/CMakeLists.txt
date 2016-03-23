@@ -4,13 +4,18 @@ PKG_CHECK_MODULES(ASKUSERD_DEP
     cynara-creds-socket
     cynara-agent
     cynara-plugin
+    libsystemd-daemon
 )
 
 INCLUDE_DIRECTORIES(
     ${ASKUSER_PATH}
+    ${COMMON_PATH}
 )
 
 SET(ASKUSERD_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/common/Exception.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/log.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/Translator.cpp
     ${DAEMON_PATH}/main.cpp
     ${DAEMON_PATH}/NotificationTalker.cpp
     ${DAEMON_PATH}/CynaraTalker.cpp

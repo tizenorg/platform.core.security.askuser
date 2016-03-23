@@ -1,91 +1,89 @@
-#if 0
-void set_level(const char *user, const char *client, const char *privilege, int level /* allow/never */) {
-  // on error raise std::expection;
-}
+/*
+ *  Copyright (c) 2016 Samsung Electronics Co.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+/**
+ * @file        main.cpp
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Main askuser daemon file
+ */
 
-void resp_to_cynara(int id, int allow_or_deny, int cache);
-
-void parse_response(Notif_send* notif_response /* aka nr */) {
-  void *what; // find from vec/arr
-  remove_from_array(what);
-
-  bool determinal = nr->type == ALLOW || nr->type == NEVER;
-
-  if(determinal)
-    set_level(what->creds, nr->type);
-
-  add_to_queue_to_send_to_cynara()
-      resp_to_cynara(nr->id, nr->type, determinal);
-}
-
-bool stop = false;
-
-while(!stop) {
-  if(empty)
-}
-
-void parse_cynara_request(cynara_req *req) {
-  add_to_arr();
-  add_to_queue_to_send_to_notif();
-}
-
-
-std::map<user, sockfd> sockets;
-void send_to_notif(req) {
-
-  int fd = getFdByUser();
-  write(fd, notif_recv, sizeof(notif_recv) - 2*sizeof(char*) );
-  write(str_implode(freindly(client), freindly(privilege)));
-
-}
-#endif
-
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/un.h>
+#include <csignal>
+#include <functional>
+#include <systemd/sd-daemon.h>
+#include <type_traits>
 #include <unistd.h>
 
-#include <iostream>
-#include <thread>
+#include <common/Exception.h>
+#include <common/log.h>
 
+#include "CynaraTalker.h"
 #include "NotificationTalker.h"
-#include <common/notification-ipc.h>
 
+CynaraTalkerPtr cynaraTalker = nullptr;
+
+void kill_handler(int) {
+  LOGE("Killme!");
+  if (cynaraTalker)
+    cynaraTalker->stop();
+  LOGE("Closed!");
+  exit(EXIT_SUCCESS);
+  abort();
+}
 
 int main()
 {
-  int ret;
+  using namespace std::placeholders;
+  init_log();
 
-  struct sockaddr_un local, remote;
-  int sockfd;
+  try {
+    int ret;
+    struct sigaction act;
 
-  sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = &kill_handler;
+    if ((ret = sigaction(SIGTERM, &act, NULL)) < 0)
+      throw Exception("Sigaction failed", errno);
 
-  if (sockfd == -1)
-    return -1;
+    cynaraTalker = std::move(CynaraTalkerPtr(new CynaraTalker));
+    NotificationTalker notificationTalker;
 
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, socketpath);
-  unlink(socketpath);
-  int len = strlen(local.sun_path) + sizeof(local.sun_family);
+    RequestHandler requestHandler = std::bind(&NotificationTalker::parseRequest, &notificationTalker, _1);
+    ResponseHandler responseHandler = std::bind(&CynaraTalker::addResponse, cynaraTalker.get(), _1);
 
-  ret = bind(sockfd, (struct sockaddr *)&local, len);
-  if (ret == -1)
-    return -2;
+    notificationTalker.setResponseHandler(responseHandler);
+    cynaraTalker->setRequestHandler(requestHandler);
 
-  chmod(socketpath, 0777);
+    cynaraTalker->start();
 
-  ret = listen(sockfd, 10);
-  if (ret == -1)
-    return -3;
+    ret = sd_notify(0, "READY=1");
+    if (ret == 0) {
+        LOGW("Agent was not configured to notify its status");
+    } else if (ret < 0) {
+        LOGE("sd_notify failed: [" << ret << "]");
+    }
 
-  NotificationTalker notif;
-
-  for (;;) {
-    socklen_t t;
-    int fd = accept(sockfd, (sockaddr*)&remote, &t);
-    notif.add(fd);
+    notificationTalker.run();
+  } catch (std::exception &e) {
+    LOGE("Askuserd stopped because of: <" << e.what() << ">.");
+  } catch (...) {
+    LOGE("Askuserd stopped because of unknown unhandled exception.");
   }
 
-  return 0;
+  LOGI("exiting");
+
+  cynaraTalker->stop();
+
+  return EXIT_SUCCESS;
 }
