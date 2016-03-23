@@ -75,3 +75,4 @@ SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
 SET(TARGET_ASKUSER_NOTIFICATION "askuser-notification")
 
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(systemd)

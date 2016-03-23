@@ -22,3 +22,8 @@ INSTALL(FILES
     lib/systemd/system
 )
 
+INSTALL(FILES
+    ${CMAKE_SOURCE_DIR}/systemd/${PROJECT_NAME}-notification.service
+    DESTINATION
+    lib/systemd/user
+)
