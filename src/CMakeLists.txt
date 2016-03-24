@@ -1,0 +1,5 @@
+SET(ASKUSER_PATH ${PROJECT_SOURCE_DIR}/src)
+
+ADD_SUBDIRECTORY(notification-daemon)
+ADD_SUBDIRECTORY(daemon)
+
