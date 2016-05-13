@@ -33,6 +33,26 @@ namespace Notification {
 
 namespace {
 
+bool should_raise = false;
+
+void unfocused(void *data, Evas_Object *, void *)
+{
+  if (data == NULL)
+    return;
+
+  PopupData *res = static_cast<PopupData*>(data);
+
+  if (should_raise)
+    elm_win_raise(res->win);
+  else
+    elm_exit();
+}
+
+void inline win_close(Evas_Object *win) {
+  should_raise = false;
+  elm_win_lower(win);
+}
+
 void inline answer(void *data, GuiResponse response)
 {
   ALOGD("User selected: " + GuiResponseToString(response));
@@ -42,8 +62,7 @@ void inline answer(void *data, GuiResponse response)
 
   PopupData *res = static_cast<PopupData*>(data);
   res->type = response;
-  evas_object_hide(res->win);
-  elm_exit();
+  win_close(res->win);
 }
 
 void allow_answer(void *data, Evas_Object *, void *)
@@ -68,8 +87,7 @@ Eina_Bool timeout_answer(void *data) {
   drop *d = static_cast<drop*>(data);
 
   if (d->handle()) {
-    evas_object_hide(d->popup->win);
-    elm_exit();
+    win_close(d->popup->win);
   }
 
   return ECORE_CALLBACK_RENEW;
@@ -144,7 +162,7 @@ void GuiRunner::initialize()
   elm_object_part_content_set(popup, "button3", denyButton);
 
   // callbacks
-  evas_object_smart_callback_add(win, "unfocused", deny_answer, popupData);
+  evas_object_smart_callback_add(win, "unfocused", unfocused, popupData);
   evas_object_smart_callback_add(allowButton, "clicked", allow_answer, popupData);
   evas_object_smart_callback_add(neverButton, "clicked", never_answer, popupData);
   evas_object_smart_callback_add(denyButton, "clicked", deny_answer, popupData);
@@ -176,13 +194,15 @@ GuiResponse GuiRunner::popupRun(const std::string &app, const std::string &perm)
   if (ret < 0)
     throw ErrnoException("snprintf failed", errno);
 
+  popupData->type = GuiResponse::None;
+  should_raise = true;
+
   elm_object_text_set(content, buf);
 
   evas_object_show(popup);
   evas_object_show(win);
 
-  popupData->type = GuiResponse::None;
-
+  elm_win_raise(win);
   elm_run();
 
   ecore_timer_del(timer);
