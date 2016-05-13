@@ -60,4 +60,6 @@ int main()
   } catch (...) {
     LOGE("Askuser-notification stopped because of unknown unhandled exception.");
   }
+
+  return 0;
 }
