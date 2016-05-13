@@ -69,7 +69,9 @@ int main(int n, char **argc)
     check_cynara_return("cynara_admin_initialize", ret);
 
     cynara_admin_policy **policies = new cynara_admin_policy*[2];
-    cynara_admin_policy policy = {bucket, client, user, privilege, AskUser::SupportedTypes::Service::ASK_USER , nullptr};
+    cynara_admin_policy policy = {bucket, client, user, privilege,
+                                  AskUser::SupportedTypes::Service::ASK_USER , nullptr};
+
     policies[0] = &policy;
     policies[1] = nullptr;
 
