@@ -20,6 +20,7 @@ BuildRequires: pkgconfig(cynara-plugin)
 BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: pkgconfig(security-manager)
+BuildRequires: coregl
 %{?systemd_requires}
 
 %if !%{defined build_type}
