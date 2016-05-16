@@ -44,7 +44,7 @@ public:
   void start();
   void stop();
 
-private:
+protected:
   RequestHandler m_requestHandler;
   cynara_agent *m_cynara;
 
