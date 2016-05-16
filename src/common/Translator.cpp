@@ -83,7 +83,7 @@ std::string GuiResponseToString(GuiResponse response)
     }
 }
 
-NotificationRequest dataToRecieve(char *data) {
+NotificationRequest dataToNotificationRequest(char *data) {
   std::stringstream stream(data);
   std::size_t strSize;
   char separator;
@@ -108,10 +108,10 @@ NotificationRequest dataToRecieve(char *data) {
   return NotificationRequest({id, std::move(members[0]), std::move(members[1])});
 }
 
-std::string recieveToData(RequestId id, const std::string &app, const std::string &perm)
+std::string notificationRequestToData(RequestId id, const std::string &app, const std::string &privilege)
 {
   const char separator = ' ';
   return std::to_string(id) + separator +
          std::to_string(app.length()) + separator + app + separator +
-         std::to_string(perm.length()) + separator + perm + separator + separator;
+         std::to_string(privilege.length()) + separator + privilege + separator + separator;
 }

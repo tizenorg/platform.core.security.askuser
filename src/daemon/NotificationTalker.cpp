@@ -134,11 +134,10 @@ void NotificationTalker::sendRequest(int fd, const CynaraRequestPtr request)
 {
   int size;
   int len;
-  int ret;
 
   m_fdStatus[fd] = false;
 
-  std::string data = recieveToData(request->id, request->app, request->perm);
+  std::string data = notificationRequestToData(request->id, request->app, request->perm);
   size = data.size();
 
   len = send(fd, &size, sizeof(size), 0);

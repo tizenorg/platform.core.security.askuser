@@ -144,11 +144,11 @@ void AskUserTalker::run()
       break;
     }
 
-    NotificationRequest request = dataToRecieve(buf);
+    NotificationRequest request = dataToNotificationRequest(buf);
     delete[] buf;
-    LOGD("Recieved data " << request.app << " " << request.perm);
+    LOGD("Recieved data " << request.app << " " << request.privilege);
 
-    response.response = m_gui->popupRun(request.app, request.perm);
+    response.response = m_gui->popupRun(request.app, request.privilege);
     response.id = request.id;
 
     if (response.response == GuiResponse::None)
@@ -167,7 +167,7 @@ void AskUserTalker::run()
     switch (response.response) {
     case GuiResponse::Allow:
     case GuiResponse::Never:
-      setSecurityLevel(request.app, request.perm, response.response);
+      setSecurityLevel(request.app, request.privilege, response.response);
     default:
       break;
     }

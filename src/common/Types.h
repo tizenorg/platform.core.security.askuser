@@ -69,13 +69,12 @@ struct CynaraRequest
 };
 
 typedef std::shared_ptr<CynaraRequest> CynaraRequestPtr;
-//typedef CynaraRequest* CynaraRequestPtr;
 
 struct NotificationRequest
 {
     RequestId id;
     std::string app;
-    std::string perm;
+    std::string privilege;
 };
 
 constexpr char socketpath[] = "/run/askuserd.socket";

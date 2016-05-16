@@ -56,7 +56,7 @@ public:
 
   void invalidate() {}
 
-  virtual int toResult(const ClientSession &session, PolicyResult &result) {
+  virtual int toResult(const ClientSession &/*session*/, PolicyResult &result) {
     switch (result.policyType()) {
     case SupportedTypes::Client::ALLOW_ONCE:
       return CYNARA_API_ACCESS_ALLOWED;

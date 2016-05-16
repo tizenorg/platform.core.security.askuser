@@ -39,7 +39,8 @@ Cynara::PluginData answerToData(Cynara::PolicyType answer);
 
 std::string GuiResponseToString(GuiResponse response);
 
-NotificationRequest dataToRecieve(char *data);
-std::string recieveToData(RequestId id, const std::string &app, const std::string &perm);
+NotificationRequest dataToNotificationRequest(char *data);
+std::string notificationRequestToData(RequestId id, const std::string &app,
+                                      const std::string &privilege);
 
 #endif // TRANSLATOR_H
