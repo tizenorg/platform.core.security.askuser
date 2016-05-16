@@ -55,7 +55,7 @@ Cynara::PolicyType GuiResponseToPolicyType(GuiResponse responseType) {
   }
 }
 
-}
+} /* namespace */
 
 void CynaraTalker::start()
 {
@@ -121,7 +121,6 @@ void CynaraTalker::run()
       RequestId req_id;
       size_t data_size = 0;
 
-
       ret = cynara_agent_get_request(m_cynara, &req_type, &req_id, &data, &data_size);
 
       if (m_stop_thread)
@@ -137,7 +136,8 @@ void CynaraTalker::run()
       if (data_size)
         dataToRequest(static_cast<char *>(data), client, user, privilege);
 
-      auto req = std::make_shared<CynaraRequest>(toRequestType(req_type), req_id, user, client, privilege);
+      auto req = std::make_shared<CynaraRequest>(toRequestType(req_type), req_id, user, client,
+                                                 privilege);
       m_requestHandler(req);
 
       free(data);

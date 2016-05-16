@@ -36,22 +36,22 @@ typedef std::function<void(CynaraRequestPtr)> RequestHandler;
 class CynaraTalker
 {
 public:
-    CynaraTalker() = default;
-    ~CynaraTalker();
+  CynaraTalker() = default;
+  ~CynaraTalker();
 
-    void addResponse(Response response);
-    void setRequestHandler(RequestHandler requestHandler);
-    void start();
-    void stop();
+  void addResponse(Response response);
+  void setRequestHandler(RequestHandler requestHandler);
+  void start();
+  void stop();
 
 private:
-    RequestHandler m_requestHandler;
-    cynara_agent *m_cynara;
+  RequestHandler m_requestHandler;
+  cynara_agent *m_cynara;
 
-    std::thread m_thread;
-    bool m_stop_thread = false;
+  std::thread m_thread;
+  bool m_stop_thread = false;
 
-    void run();
+  void run();
 };
 
 typedef std::unique_ptr<CynaraTalker> CynaraTalkerPtr;

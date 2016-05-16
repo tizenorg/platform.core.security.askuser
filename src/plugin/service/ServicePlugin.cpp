@@ -19,23 +19,18 @@
  * @brief       Implementation of cynara server side AskUser plugin.
  */
 
+#include <iostream>
 #include <string>
 #include <tuple>
-#include <iostream>
 #include <ostream>
+
 #include <cynara-plugin.h>
 
-#include <SupportedTypes.h>
 #include <log.h>
-
-/*
-#include <types/PolicyDescription.h>
-#include <types/SupportedTypes.h>
-#include <translator/Translator.h>
-*/
-#include "CapacityCache.h"
-
+#include <SupportedTypes.h>
 #include <Translator.h>
+
+#include "CapacityCache.h"
 
 using namespace Cynara;
 
@@ -97,9 +92,7 @@ public:
             else
                 result = PolicyResult(PredefinedPolicyType::DENY);
             return PluginStatus::ANSWER_READY;
-        }/* catch (const Translator::TranslateErrorException &e) {
-            LOGE("Error translating request to data : " << e.what());
-        } */catch (const std::exception &e) {
+        } catch (const std::exception &e) {
             LOGE("Failed with std exception: " << e.what());
         } catch (...) {
             LOGE("Failed with unknown exception: ");
@@ -126,9 +119,7 @@ public:
             }
 
             return PluginStatus::SUCCESS;
-        }/* catch (const Translator::TranslateErrorException &e) {
-            LOGE("Error translating data to answer : " << e.what());
-        } */catch (const std::exception &e) {
+        } catch (const std::exception &e) {
             LOGE("Failed with std exception: " << e.what());
         } catch (...) {
             LOGE("Failed with unknown exception: ");
