@@ -48,9 +48,9 @@ public:
   void parseRequest(CynaraRequestPtr request);
   void run();
   void setResponseHandler(ResponseHandler responseHandler);
-  void stop();
+  virtual void stop();
 
-private:
+protected:
   ResponseHandler m_responseHandler;
 
   UserToFdMap m_userToFd;
@@ -70,10 +70,10 @@ private:
   void newConnection();
   void remove(int fd);
 
-  void addRequest(CynaraRequestPtr request);
-  void removeRequest(CynaraRequestPtr request);
-  void sendRequest(int fd, const CynaraRequestPtr request);
-  void sendDismiss(int fd);
+  virtual void addRequest(CynaraRequestPtr request);
+  virtual void removeRequest(CynaraRequestPtr request);
+  virtual void sendRequest(int fd, const CynaraRequestPtr request);
+  virtual void sendDismiss(int fd);
 };
 
 #endif /* __NOTIFICATION_TALKER__ */

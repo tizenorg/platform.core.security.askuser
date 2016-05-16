@@ -57,6 +57,14 @@ Summary:    Askuser common library
 %description -n libaskuser-common
 Askuser common library with common functionalities
 
+%package -n askuser-tests
+Summary:    Unit tests for askuser
+BuildRequires: pkgconfig(gmock)
+
+%description -n askuser-tests
+Unit tests for askuser. A standalone application checking correctness
+of askuser's components.
+
 %prep
 %setup -q
 cp -a %{SOURCE1001} .
@@ -142,3 +150,7 @@ fi
 %manifest libaskuser-common.manifest
 %license LICENSE
 %{_libdir}/libaskuser-common.so*
+
+%files -n askuser-tests
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-tests
