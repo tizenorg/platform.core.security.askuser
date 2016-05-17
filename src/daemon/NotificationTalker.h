@@ -54,6 +54,8 @@ public:
   void setResponseHandler(ResponseHandler responseHandler);
   virtual void stop();
 
+  ~NotificationTalker();
+
 protected:
   ResponseHandler m_responseHandler;
 

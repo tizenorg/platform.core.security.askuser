@@ -128,10 +128,30 @@ void NotificationTalker::setResponseHandler(ResponseHandler responseHandler)
 void NotificationTalker::stop()
 {
   m_stopflag = true;
+
   for (auto& pair : m_fdStatus) {
-    close(std::get<0>(pair));
+    int fd = std::get<0>(pair);
+    close(fd);
   }
+
+  m_fdStatus.clear();
+  m_fdToUser.clear();
+  m_userToFd.clear();
+
   close(m_sockfd);
+  m_sockfd = 0;
+}
+
+NotificationTalker::~NotificationTalker()
+{
+  for (auto& pair : m_fdStatus) {
+    int fd = std::get<0>(pair);
+    if (fd)
+      close(fd);
+  }
+
+  if (m_sockfd)
+    close(m_sockfd);
 }
 
 void NotificationTalker::sendRequest(int fd, const CynaraRequestPtr request)
