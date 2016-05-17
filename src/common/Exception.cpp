@@ -30,7 +30,7 @@ Exception::Exception(std::string msg) : m_msg(msg) {}
 
 Exception::Exception(std::string msg, int err)
 {
-  char *error = strerror(err);
+  char *error = strerror_r(err, nullptr, 0);
   m_msg = msg + ": " + error;
 }
 
