@@ -19,7 +19,9 @@
  * @brief       Tests for NotificationTalker class
  */
 
+#include <fcntl.h>
 #include <memory>
+#include <unistd.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -47,6 +49,10 @@ public:
 
     void invokeAdd(CynaraRequestPtr request) { NotificationTalker::addRequest(request); }
     void invokeRemove(CynaraRequestPtr request) { NotificationTalker::removeRequest(request); }
+
+    int getSockFd() {
+        return m_sockfd;
+    }
 };
 
 } /* namespace */
@@ -137,9 +143,6 @@ TEST(NotificationTalker, removeNonExistingRequest) {
 
     FakeNotificationTalker notificationTalker;
     RequestId id = 1;
-    std::string user = "user";
-    std::string client = "client";
-    std::string privilege = "privilege";
 
     CynaraRequestPtr ptr = std::make_shared<CynaraRequest>(RequestType::RT_Cancel, id);
 
@@ -161,4 +164,16 @@ TEST(NotificationTalker, closeRequest) {
 
     EXPECT_CALL(notificationTalker, stop());
     notificationTalker.parseRequest(ptr);
+}
+
+TEST(NotificationTalker, closeSocket) {
+    int fd;
+
+    {
+        FakeNotificationTalker notificationTalker;
+        fd = notificationTalker.getSockFd();
+        ASSERT_NE(fcntl(fd, F_GETFL), -1);
+    }
+
+    ASSERT_EQ(fcntl(fd, F_GETFL), -1);
 }
