@@ -24,6 +24,8 @@
 
 #include <common/Exception.h>
 
+using namespace AskUser;
+
 /**
  * @brief   Exception should publicly inherit from std::exception
  *

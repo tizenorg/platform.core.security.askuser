@@ -31,7 +31,7 @@
 #include "CynaraTalker.h"
 #include "NotificationTalker.h"
 
-CynaraTalkerPtr cynaraTalker = nullptr;
+AskUser::Daemon::CynaraTalkerPtr cynaraTalker = nullptr;
 
 void kill_handler(int) {
   LOGE("Killme!");
@@ -45,6 +45,7 @@ void kill_handler(int) {
 int main()
 {
   using namespace std::placeholders;
+  using namespace AskUser::Daemon;
   init_log();
 
   try {
@@ -54,7 +55,7 @@ int main()
     memset(&act, 0, sizeof(act));
     act.sa_handler = &kill_handler;
     if ((ret = sigaction(SIGTERM, &act, NULL)) < 0)
-      throw Exception("Sigaction failed", errno);
+      throw AskUser::Exception("Sigaction failed", errno);
 
     cynaraTalker = std::move(CynaraTalkerPtr(new CynaraTalker));
     NotificationTalker notificationTalker;

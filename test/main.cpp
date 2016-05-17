@@ -41,7 +41,7 @@ void check_cynara_return(std::string func, int ret) {
 
     std::string err = cynara_strerror(ret, strerror, sizeof(strerror)) == CYNARA_API_SUCCESS ?
           strerror : time2Die;
-    throw Exception(func + ": " + err);
+    throw AskUser::Exception(func + ": " + err);
   }
 }
 

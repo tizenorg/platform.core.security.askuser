@@ -31,6 +31,10 @@
 
 #include <common/Types.h>
 
+namespace AskUser {
+
+namespace Daemon {
+
 typedef std::pair<std::string, int> UserToFdPair;
 typedef std::map<std::string, int> UserToFdMap;
 typedef std::map<int, std::string> FdToUserMap;
@@ -75,6 +79,10 @@ protected:
   virtual void sendRequest(int fd, const CynaraRequestPtr request);
   virtual void sendDismiss(int fd);
 };
+
+} /* namespace Daemon */
+
+} /* namespace AskUser */
 
 #endif /* __NOTIFICATION_TALKER__ */
 

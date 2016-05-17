@@ -26,6 +26,10 @@
 #include <libintl.h>
 #include <privilegemgr/privilege_info.h>
 
+namespace AskUser {
+
+namespace Notification {
+
 namespace {
 
 bool should_raise = false;
@@ -220,3 +224,7 @@ void GuiRunner::stop()
 
   elm_shutdown();
 }
+
+} /* namespace Notification */
+
+} /* namespace AskUser */

@@ -23,6 +23,8 @@
 
 #include <sstream>
 
+namespace AskUser {
+
 void dataToRequest(const Cynara::PluginData &data, std::string &client, std::string &user,
                    std::string &privilege) {
   std::stringstream stream(data);
@@ -115,3 +117,5 @@ std::string notificationRequestToData(RequestId id, const std::string &app, cons
          std::to_string(app.length()) + separator + app + separator +
          std::to_string(privilege.length()) + separator + privilege + separator + separator;
 }
+
+} /* namespace AskUser */

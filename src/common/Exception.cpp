@@ -24,6 +24,8 @@
 #include <cynara-error.h>
 #include <string.h>
 
+namespace AskUser {
+
 Exception::Exception(std::string msg) : m_msg(msg) {}
 
 Exception::Exception(std::string msg, int err)
@@ -37,7 +39,6 @@ const char *Exception::what() const noexcept
   return m_msg.c_str();
 }
 
-
 CynaraException::CynaraException(std::string msg, int err)
 {
   static const char *time2Die = "cynara_strerror error ;)";
@@ -47,4 +48,6 @@ CynaraException::CynaraException(std::string msg, int err)
         strerror : time2Die;
 
   m_msg = msg + ": " + error;
+}
+
 }

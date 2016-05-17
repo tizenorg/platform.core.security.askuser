@@ -27,6 +27,8 @@
 
 #include <common/Translator.h>
 
+using namespace AskUser;
+
 TEST(TranslatorTest, PluginData_Strings) {
     std::string client = "TranslatorTest-client";
     std::string user = "TranslatorTest-user";

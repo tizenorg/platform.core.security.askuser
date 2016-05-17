@@ -29,6 +29,10 @@
 #include <common/Types.h>
 #include <common/log.h>
 
+namespace AskUser {
+
+namespace Notification {
+
 typedef std::function<bool()> DropHandler;
 
 struct PopupData {
@@ -69,5 +73,9 @@ private:
 
   void initialize();
 };
+
+} /* namespace Notification */
+
+} /* namespace AskUser */
 
 #endif /* __GUI_RUNNER__ */

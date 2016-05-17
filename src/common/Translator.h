@@ -27,6 +27,8 @@
 
 #include "Types.h"
 
+namespace AskUser {
+
 void dataToRequest(const Cynara::PluginData &data, std::string &client, std::string &user,
                    std::string &privilege);
 
@@ -42,5 +44,6 @@ std::string GuiResponseToString(GuiResponse response);
 NotificationRequest dataToNotificationRequest(char *data);
 std::string notificationRequestToData(RequestId id, const std::string &app,
                                       const std::string &privilege);
+} /* namespace AskUser */
 
 #endif // TRANSLATOR_H

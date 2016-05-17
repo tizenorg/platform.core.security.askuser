@@ -33,6 +33,10 @@
 #include <common/Types.h>
 #include <common/Translator.h>
 
+namespace AskUser {
+
+namespace Daemon {
+
 NotificationTalker::NotificationTalker()
 {
   int ret, len;
@@ -302,3 +306,7 @@ void NotificationTalker::run()
 
   LOGD("NotificationTalker loop ended");
 }
+
+} /* namespace Daemon */
+
+} /* namespace AskUser */

@@ -29,6 +29,8 @@
 #include <cynara-agent.h>
 #include <cynara-plugin.h>
 
+namespace AskUser {
+
 typedef cynara_agent_req_id RequestId;
 typedef cynara_agent_msg_type CynaraRequestType;
 
@@ -78,5 +80,7 @@ struct NotificationRequest
 };
 
 constexpr char socketpath[] = "/run/askuserd.socket";
+
+} /* namespace AskUser */
 
 #endif // SRC_COMMON_IPC

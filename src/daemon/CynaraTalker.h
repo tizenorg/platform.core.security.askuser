@@ -31,6 +31,10 @@
 
 #include <common/Types.h>
 
+namespace AskUser {
+
+namespace Daemon {
+
 typedef std::function<void(CynaraRequestPtr)> RequestHandler;
 
 class CynaraTalker
@@ -55,5 +59,9 @@ protected:
 };
 
 typedef std::unique_ptr<CynaraTalker> CynaraTalkerPtr;
+
+} /* namespace Daemon */
+
+} /* namespace AskUser */
 
 #endif // CYNARATALKER_H

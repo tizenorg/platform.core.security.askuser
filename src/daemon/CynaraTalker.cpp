@@ -29,6 +29,10 @@
 #include <common/SupportedTypes.h>
 #include <common/Translator.h>
 
+namespace AskUser {
+
+namespace Daemon {
+
 namespace {
 
 RequestType toRequestType(cynara_agent_msg_type type)
@@ -150,3 +154,7 @@ void CynaraTalker::run()
     LOGE("CynaraTalker stopped because of unknown unhandled exception.");
   }
 }
+
+} /* namespace Daemon */
+
+} /* namespace AskUser */

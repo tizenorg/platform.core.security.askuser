@@ -31,6 +31,10 @@
 
 #include "GuiRunner.h"
 
+namespace AskUser {
+
+namespace Notification {
+
 class AskUserTalker
 {
 public:
@@ -49,5 +53,9 @@ private:
 };
 
 typedef std::unique_ptr<AskUserTalker> AskUserTalkerPtr;
+
+} /* namespace Notification */
+
+} /* namespace AskUser */
 
 #endif /* __ASKUSER_TALKER__ */

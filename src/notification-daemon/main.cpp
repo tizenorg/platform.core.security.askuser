@@ -33,16 +33,18 @@
 #include "GuiRunner.h"
 #include "AskUserTalker.h"
 
-AskUserTalkerPtr askUserTalker;
 
 int main()
 {
+  using namespace AskUser::Notification;
+
   init_log();
 
   char *locale = setlocale(LC_ALL, "");
   LOGD("Current locale is: <" << locale << ">");
 
   try {
+    AskUserTalkerPtr askUserTalker;
     GuiRunner gui;
     askUserTalker = std::move(AskUserTalkerPtr(new AskUserTalker(&gui)));
 

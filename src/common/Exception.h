@@ -25,6 +25,8 @@
 #include <exception>
 #include <string>
 
+namespace AskUser {
+
 class Exception : public std::exception
 {
 public:
@@ -49,3 +51,5 @@ private:
 };
 
 #endif // EXCEPTION_H
+
+} /* namespace AskUser */

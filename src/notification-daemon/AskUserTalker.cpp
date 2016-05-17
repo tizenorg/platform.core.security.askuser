@@ -34,6 +34,10 @@
 
 #include <security-manager.h>
 
+namespace AskUser {
+
+namespace Notification {
+
 namespace {
 
 inline void throwOnSecurityPrivilegeError(std::string err, int ret)
@@ -201,3 +205,7 @@ bool AskUserTalker::shouldDismiss()
 
   return true;
 }
+
+} /* namespace Notification */
+
+} /* namespace AskUser */

@@ -26,6 +26,9 @@
 
 #include <daemon/NotificationTalker.h>
 
+using namespace AskUser::Daemon;
+using namespace AskUser;
+
 namespace {
 
 class FakeNotificationTalker : public NotificationTalker {
