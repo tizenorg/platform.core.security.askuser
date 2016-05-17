@@ -176,8 +176,7 @@ void NotificationTalker::sendRequest(int fd, const CynaraRequestPtr request)
 void NotificationTalker::sendDismiss(int fd)
 {
   if (!m_fdStatus[fd]) {
-    uint8_t close = 0xDE;
-    send(fd, &close, sizeof(close), 0);
+    send(fd, &dissmisCode, sizeof(dissmisCode), 0);
     m_fdStatus[fd] = true;
   }
 }
@@ -210,8 +209,7 @@ void NotificationTalker::parseResponse(Response response, int fd)
        request->perm << "> recieved: <" << GuiResponseToString(response.response) << ">");
   m_responseHandler(response);
 
-  uint8_t ack = 0xAC;
-  send(fd, &ack, sizeof(ack), 0);
+  send(fd, &ackCode, sizeof(ackCode), 0);
 
   m_fdStatus[fd] = true;
 }

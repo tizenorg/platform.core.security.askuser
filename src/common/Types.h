@@ -80,6 +80,8 @@ struct NotificationRequest
 };
 
 constexpr char socketpath[] = "/run/askuserd.socket";
+constexpr uint8_t dissmisCode = 0xDE;
+constexpr uint8_t ackCode = 0xAC;
 
 } /* namespace AskUser */
 

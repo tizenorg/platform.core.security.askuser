@@ -165,7 +165,7 @@ void AskUserTalker::run()
     uint8_t ack = 0x00;
     len = recv(sockfd, &ack, sizeof(ack), 0);
 
-    if (ack != 0xAC)
+    if (ack != ackCode)
       throw Exception("Incorrect ack");
 
     switch (response.response) {
@@ -200,7 +200,7 @@ bool AskUserTalker::shouldDismiss()
   uint8_t a = 0x00;
   recv(sockfd, &a, sizeof(a), 0);
 
-  if (a != 0xDE)
+  if (a != dissmisCode)
     throw Exception("Incorrect dismiss flag");
 
   return true;
