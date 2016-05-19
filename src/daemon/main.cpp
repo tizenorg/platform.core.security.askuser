@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        main.cpp
+ * @file        src/daemon/main.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Main askuser daemon file
  */

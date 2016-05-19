@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        CapacityCache.h
+ * @file        src/plugin/service/CapacityCache.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @brief       LRU cache container template declaration.
  */

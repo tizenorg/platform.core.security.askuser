@@ -14,8 +14,9 @@
  *  limitations under the License
  */
 /**
- * @file        ClientPlugin.cpp
+ * @file        src/plugin/client/ClientPlugin.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of cynara client side AskUser plugin.
  */
 
@@ -30,8 +31,6 @@ using namespace Cynara;
 
 namespace AskUser {
 const std::vector<PolicyDescription> clientDescriptions = {
-  { SupportedTypes::Client::ALLOW_ONCE, "Allow once" },
-
   { SupportedTypes::Client::DENY_ONCE, "Deny once" },
 };
 

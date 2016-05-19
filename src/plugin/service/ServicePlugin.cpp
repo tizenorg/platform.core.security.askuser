@@ -14,8 +14,9 @@
  *  limitations under the License
  */
 /**
- * @file        ServicePlugin.cpp
+ * @file        src/plugin/service/ServicePlugin.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of cynara server side AskUser plugin.
  */
 

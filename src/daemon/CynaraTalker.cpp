@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        CynaraTalker.cpp
+ * @file        src/daemon/CynaraTalker.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of CynaraTalker class
  */

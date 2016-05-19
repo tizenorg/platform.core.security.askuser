@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        NotificationTalker.cpp
+ * @file        src/daemon/NotificationTalker.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of NotificationTalker class
  */

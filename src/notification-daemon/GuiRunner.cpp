@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        GuiRunner.cpp
+ * @file        src/notification-daemon/GuiRunner.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of GuiRunner class
  */

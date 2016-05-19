@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  limitations under the License
  */
 /**
- * @file        SupportedTypes.h
+ * @file        src/common/SupportedTypes.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @brief       Definition of plugin supported types and agent type
  */
 
-#pragma once
+#ifndef _SRC_COMMON_SUPPORTEDTYPES_H
+#define _SRC_COMMON_SUPPORTEDTYPES_H
 
 #include <types/PolicyType.h>
 
@@ -48,3 +49,5 @@ const Cynara::PolicyType DENY_PER_LIFE = 16;
 
 } //namespace SupportedTypes
 } //namespace AskUser
+
+#endif // _SRC_COMMON_SUPPORTEDTYPES_H

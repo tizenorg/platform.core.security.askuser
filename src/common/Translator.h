@@ -14,13 +14,13 @@
  *  limitations under the License
  */
 /**
- * @file        Translator.h
+ * @file        src/common/Translator.h
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Declaration of Translator functions
  */
 
-#ifndef TRANSLATOR_H
-#define TRANSLATOR_H
+#ifndef _SRC_COMMON_TRANSLATOR_H
+#define _SRC_COMMON_TRANSLATOR_H
 
 #include <cynara-plugin.h>
 #include <string>
@@ -46,4 +46,4 @@ std::string notificationRequestToData(RequestId id, const std::string &app,
                                       const std::string &privilege);
 } /* namespace AskUser */
 
-#endif // TRANSLATOR_H
+#endif // _SRC_COMMON_TRANSLATOR_H

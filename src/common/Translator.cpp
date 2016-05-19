@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        Translator.cpp
+ * @file        src/common/Translator.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of Translator functions
  */

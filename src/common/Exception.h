@@ -14,13 +14,13 @@
  *  limitations under the License
  */
 /**
- * @file        Exception.h
+ * @file        src/common/Exception.h
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Declaration of Exception and CynaraException classes
  */
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef _SRC_COMMON_EXCEPTION_H
+#define _SRC_COMMON_EXCEPTION_H
 
 #include <exception>
 #include <string>
@@ -50,6 +50,6 @@ private:
   std::string m_msg;
 };
 
-#endif // EXCEPTION_H
+#endif // _SRC_COMMON_EXCEPTION_H
 
 } /* namespace AskUser */

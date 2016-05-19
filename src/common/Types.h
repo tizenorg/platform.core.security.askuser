@@ -14,13 +14,13 @@
  *  limitations under the License
  */
 /**
- * @file        ???
+ * @file        src/common/Types.h
  * @author      Oskar Świtalski <o.switalski@samsung.com>
- * @brief       ???
+ * @brief       Definition of common types and consts
  */
 
-#ifndef SRC_COMMON_IPC
-#define SRC_COMMON_IPC
+#ifndef _SRC_COMMON_TYPES_H
+#define _SRC_COMMON_TYPES_H
 
 #include <cstring>
 #include <memory>
@@ -85,4 +85,4 @@ constexpr uint8_t ackCode = 0xAC;
 
 } /* namespace AskUser */
 
-#endif // SRC_COMMON_IPC
+#endif // _SRC_COMMON_TRANSLATOR_H

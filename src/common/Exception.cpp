@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /**
- * @file        Exception.cpp
+ * @file        src/common/Exception.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of Exception and CynaraException classes
  */
