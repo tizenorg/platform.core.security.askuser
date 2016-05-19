@@ -16,7 +16,7 @@
  * limitations under the License
  */
 /**
- * @file    log.cpp
+ * @file    src/common/log.cpp
  * @author	Adam Malinowski <a.malinowsk2@partner.samsung.com>
  * @version	1.0
  * @brief	  Simple file containing definition of logging level variable.
@@ -28,7 +28,7 @@
 #include <cstdlib>
 
 #ifndef ASKUSER_NO_LOGS
-#ifndef BUILD_TYPE_DEBUG
+#ifdef BUILD_TYPE_DEBUG
 int __log_level = LOG_DEBUG;
 #else
 int __log_level = LOG_ERR;
