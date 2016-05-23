@@ -56,7 +56,7 @@ inline const char *dropPrefix(const char* app)
 void setSecurityLevel(const std::string &app, const std::string &perm, GuiResponse response)
 {
   int ret;
-  LOGD("SecurityManager: Setting security level to " << GuiResponseToString(response));
+  ALOGD("SecurityManager: Setting security level to " << GuiResponseToString(response));
 
   policy_update_req *policyUpdateRequest = nullptr;
   policy_entry *policyEntry = nullptr;
@@ -85,9 +85,9 @@ void setSecurityLevel(const std::string &app, const std::string &perm, GuiRespon
     ret = security_manager_policy_update_send(policyUpdateRequest);
     throwOnSecurityPrivilegeError("security_manager_policy_update_send", ret);
 
-    LOGD("SecurityManager: Setting level succeeded");
+    ALOGD("SecurityManager: Setting level succeeded");
   } catch (std::exception &e) {
-    LOGE("SecurityManager: Failed <" << e.what() << ">");
+    ALOGE("SecurityManager: Failed <" << e.what() << ">");
   }
 
   security_manager_policy_entry_free(policyEntry);
@@ -134,7 +134,7 @@ void AskUserTalker::run()
     if (len < 0) {
       throw Exception("Recieving data from socket error", errno);
     } else if (len == 0) {
-      LOGI("Askuserd closed connection, closing...");
+      ALOGI("Askuserd closed connection, closing...");
       break;
     }
 
@@ -144,13 +144,13 @@ void AskUserTalker::run()
     if (len < 0) {
       throw Exception("Recieving data from socket error", errno);
     } else if (len == 0) {
-      LOGI("Askuserd closed connection, closing...");
+      ALOGI("Askuserd closed connection, closing...");
       break;
     }
 
     NotificationRequest request = dataToNotificationRequest(buf);
     delete[] buf;
-    LOGD("Recieved data " << request.app << " " << request.privilege);
+    ALOGD("Recieved data " << request.app << " " << request.privilege);
 
     response.response = m_gui->popupRun(request.app, request.privilege);
     response.id = request.id;

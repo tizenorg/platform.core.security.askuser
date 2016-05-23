@@ -54,7 +54,7 @@ void inline win_close(Evas_Object *win) {
 
 void inline answer(void *data, GuiResponse response)
 {
-  LOGD("User selected: " + GuiResponseToString(response));
+  ALOGD("User selected: " + GuiResponseToString(response));
 
   if (data == NULL)
     return;
@@ -97,7 +97,7 @@ std::string friendlyPrivilegeName(const std::string &privilege)
   char *name = nullptr;
   int res = privilege_info_get_privilege_display_name(privilege.c_str(), &name);
   if (res != PRVMGR_ERR_NONE || !name) {
-    LOGE("Unable to get privilege display name for: <" << privilege << ">, err: <" << res << ">");
+    ALOGE("Unable to get privilege display name for: <" << privilege << ">, err: <" << res << ">");
     return privilege;
   }
   std::string ret(name);

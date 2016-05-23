@@ -38,10 +38,10 @@ int main()
 {
   using namespace AskUser::Notification;
 
-  init_log();
+  AskUser::init_log();
 
   char *locale = setlocale(LC_ALL, "");
-  LOGD("Current locale is: <" << locale << ">");
+  ALOGD("Current locale is: <" << locale << ">");
 
   try {
     AskUserTalkerPtr askUserTalker;
@@ -50,17 +50,17 @@ int main()
 
     int ret = sd_notify(0, "READY=1");
     if (ret == 0) {
-        LOGW("Agent was not configured to notify its status");
+        ALOGW("Agent was not configured to notify its status");
     } else if (ret < 0) {
-        LOGE("sd_notify failed: [" << ret << "]");
+        ALOGE("sd_notify failed: [" << ret << "]");
     }
 
     askUserTalker->run();
 
   } catch (std::exception &e) {
-    LOGE("Askuser-notification stopped because of: <" << e.what() << ">.");
+    ALOGE("Askuser-notification stopped because of: <" << e.what() << ">.");
   } catch (...) {
-    LOGE("Askuser-notification stopped because of unknown unhandled exception.");
+    ALOGE("Askuser-notification stopped because of unknown unhandled exception.");
   }
 
   return 0;

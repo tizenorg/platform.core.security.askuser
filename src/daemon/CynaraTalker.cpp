@@ -86,7 +86,7 @@ void CynaraTalker::addResponse(Response response)
 
   int ret = cynara_agent_put_response(m_cynara, CYNARA_MSG_TYPE_ACTION, response.id, static_cast<void*>(data), sResponse.size());
   if (ret != CYNARA_API_SUCCESS) {
-    LOGE("putting response to cynara failed: " << ret);
+    ALOGE("putting response to cynara failed: " << ret);
   }
 
   free(data);
@@ -107,7 +107,7 @@ void CynaraTalker::run()
   try {
     int ret;
 
-    LOGD("CynaraTalker starting...");
+    ALOGD("CynaraTalker starting...");
 
     if (!m_requestHandler)
       throw Exception("Missing request handler");
@@ -118,7 +118,7 @@ void CynaraTalker::run()
 
     void *data = nullptr;
 
-    LOGD("CynaraTalker running");
+    ALOGD("CynaraTalker running");
 
     while (!m_stop_thread) {
       CynaraRequestType req_type;
@@ -149,9 +149,9 @@ void CynaraTalker::run()
     }
 
   } catch (std::exception &e) {
-    LOGE("CynaraTalker stopped because of: <" << e.what() << ">.");
+    ALOGE("CynaraTalker stopped because of: <" << e.what() << ">.");
   } catch (...) {
-    LOGE("CynaraTalker stopped because of unknown unhandled exception.");
+    ALOGE("CynaraTalker stopped because of unknown unhandled exception.");
   }
 }
 

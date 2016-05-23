@@ -69,7 +69,7 @@ bool CapacityCache<Key, Value>::get(const Key &key, Value &value) {
     if (resultIt == m_keyValue.end()) {
         return false;
     }
-    LOGD("Found: " << key << " with value:" << resultIt->second.first);
+    ALOGD("Found: " << key << " with value:" << resultIt->second.first);
 
     auto usageIt = resultIt->second.second;
     m_keyUsage.splice(m_keyUsage.begin(), m_keyUsage, usageIt);
@@ -96,11 +96,11 @@ void CapacityCache<Key, Value>::evict(void) {
 template <class Key, class Value>
 bool CapacityCache<Key, Value>::update(const Key &key, const Value &value) {
     if (m_capacity == 0) {
-        LOGD("Cache size is 0");
+        ALOGD("Cache size is 0");
         return false;
     }
     if (m_keyValue.size() == m_capacity) {
-        LOGD("Capacity [" << m_capacity << "] reached");
+        ALOGD("Capacity [" << m_capacity << "] reached");
         evict();
     }
 
@@ -112,10 +112,10 @@ bool CapacityCache<Key, Value>::update(const Key &key, const Value &value) {
         existed = true;
         auto usageIt = resultIt->second.second;
         m_keyUsage.splice(m_keyUsage.begin(), m_keyUsage, usageIt);
-        LOGD("Update existing entry key=<" << key << ">" << " with value=<" << value << ">");
+        ALOGD("Update existing entry key=<" << key << ">" << " with value=<" << value << ">");
     } else {
         m_keyUsage.push_front(cacheKey);
-        LOGD("Added new entry key=<" << key << ">" << " and value=<" << value << ">");
+        ALOGD("Added new entry key=<" << key << ">" << " and value=<" << value << ">");
     }
 
     m_keyValue[cacheKey] = std::make_pair(value, m_keyUsage.begin());

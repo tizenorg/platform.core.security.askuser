@@ -64,15 +64,15 @@ void NotificationTalker::parseRequest(CynaraRequestPtr request)
 {
   switch (request->type) {
   case RequestType::RT_Close:
-    LOGD("Close service");
+    ALOGD("Close service");
     stop();
     return;
   case RequestType::RT_Action:
-    LOGD("Add request: " << request->id);
+    ALOGD("Add request: " << request->id);
     addRequest(request);
     return;
   case RequestType::RT_Cancel:
-    LOGD("Cancel request: " << request->id);
+    ALOGD("Cancel request: " << request->id);
     removeRequest(request);
     return;
   default:
@@ -92,7 +92,7 @@ void NotificationTalker::addRequest(CynaraRequestPtr request)
   if (it == queue.end()) {
     queue.push_back(request);
   } else {
-    LOGD("Cynara request already exists");
+    ALOGD("Cynara request already exists");
   }
 
 }
@@ -190,14 +190,14 @@ void NotificationTalker::parseResponse(Response response, int fd)
 
     auto &queue = requests[m_fdToUser[fd]];
     if (queue.empty()) {
-      LOGD("Request canceled");
+      ALOGD("Request canceled");
       m_fdStatus[fd] = true;
       return;
     }
 
     request = queue.front();
     if (request->id != response.id) {
-      LOGD("Request canceled");
+      ALOGD("Request canceled");
       m_fdStatus[fd] = true;
       return;
     }
@@ -205,7 +205,7 @@ void NotificationTalker::parseResponse(Response response, int fd)
     queue.pop_front();
   } /* lock_guard */
 
-  LOGD("For user: <" << request->user << "> client: <" << request->app << "> permision: <" <<
+  ALOGD("For user: <" << request->user << "> client: <" << request->app << "> permision: <" <<
        request->perm << "> recieved: <" << GuiResponseToString(response.response) << ">");
   m_responseHandler(response);
 
@@ -260,13 +260,13 @@ void NotificationTalker::newConnection()
 
     free(user_c);
 
-    LOGD("Accepted new conection for user: " << user);
+    ALOGD("Accepted new conection for user: " << user);
   }
 }
 
 void NotificationTalker::remove(int fd)
 {
-  LOGE("Close sock " << fd);
+  ALOGE("Close sock " << fd);
   close(fd);
   auto user = m_fdToUser[fd];
   m_fdToUser.erase(fd);
@@ -276,7 +276,7 @@ void NotificationTalker::remove(int fd)
 
 void NotificationTalker::run()
 {
-  LOGD("Notification loop started");
+  ALOGD("Notification loop started");
   while (!m_stopflag) {
 
     timeval timeout;
@@ -322,7 +322,7 @@ void NotificationTalker::run()
     } /* lock_guard */
   }
 
-  LOGD("NotificationTalker loop ended");
+  ALOGD("NotificationTalker loop ended");
 }
 
 } /* namespace Daemon */

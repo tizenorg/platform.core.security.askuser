@@ -94,9 +94,9 @@ public:
                 result = PolicyResult(PredefinedPolicyType::DENY);
             return PluginStatus::ANSWER_READY;
         } catch (const std::exception &e) {
-            LOGE("Failed with std exception: " << e.what());
+            ALOGE("Failed with std exception: " << e.what());
         } catch (...) {
-            LOGE("Failed with unknown exception: ");
+            ALOGE("Failed with unknown exception: ");
         }
         return PluginStatus::ERROR;
     }
@@ -121,9 +121,9 @@ public:
 
             return PluginStatus::SUCCESS;
         } catch (const std::exception &e) {
-            LOGE("Failed with std exception: " << e.what());
+            ALOGE("Failed with std exception: " << e.what());
         } catch (...) {
-            LOGE("Failed with unknown exception: ");
+            ALOGE("Failed with unknown exception: ");
         }
         return PluginStatus::ERROR;
     }

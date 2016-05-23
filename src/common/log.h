@@ -24,8 +24,8 @@
  */
 
 
-#ifndef CYNARA_COMMON_LOG_H
-#define CYNARA_COMMON_LOG_H
+#ifndef _SRC_COMMON_LOG_H
+#define _SRC_COMMON_LOG_H
 
 #ifndef ASKUSER_NO_LOGS
 #include <sstream>
@@ -43,7 +43,7 @@ extern int __log_level;
 #ifndef ASKUSER_NO_LOGS
 namespace {
 template <typename ...Args>
-void UNUSED __LOG_FUN(int level, const std::stringstream &format, Args&&... args) {
+void UNUSED __ALOG_FUN(int level, const std::stringstream &format, Args&&... args) {
 #ifdef BUILD_WITH_SYSTEMD
   sd_journal_print(level, format.str().c_str(), std::forward<Args>(args)...);
 #else // BUILD_WITH_SYSTEMD
@@ -52,7 +52,7 @@ void UNUSED __LOG_FUN(int level, const std::stringstream &format, Args&&... args
 }
 
 template <>
-void UNUSED __LOG_FUN(int level, const std::stringstream &format) {
+void UNUSED __ALOG_FUN(int level, const std::stringstream &format) {
 #ifdef BUILD_WITH_SYSTEMD
   sd_journal_print(level, "%s", format.str().c_str());
 #else // BUILD_WITH_SYSTEMD
@@ -61,28 +61,31 @@ void UNUSED __LOG_FUN(int level, const std::stringstream &format) {
 }
 } // namespace anonymous
 
-#define __LOG(LEVEL, FORMAT, ...) \
+#define __ALOG(LEVEL, FORMAT, ...) \
   do { \
   if (LEVEL <= __log_level) { \
   std::stringstream __LOG_FORMAT; \
   __LOG_FORMAT << FORMAT; \
-  __LOG_FUN(LEVEL, __LOG_FORMAT, ##__VA_ARGS__); \
+  __ALOG_FUN(LEVEL, __LOG_FORMAT, ##__VA_ARGS__); \
   } \
   } while (0)
 
 #else // ASKUSER_NO_LOGS
-#define __LOG(LEVEL, ...)
+#define __ALOG(LEVEL, ...)
 #endif
 
-#define LOGM(...)  __LOG(LOG_EMERG, __VA_ARGS__)   /* system is unusable */
-#define LOGA(...)  __LOG(LOG_ALERT, __VA_ARGS__)   /* action must be taken immediately */
-#define LOGC(...)  __LOG(LOG_CRIT, __VA_ARGS__)    /* critical conditions */
-#define LOGE(...)  __LOG(LOG_ERR, __VA_ARGS__)     /* error conditions */
-#define LOGW(...)  __LOG(LOG_WARNING, __VA_ARGS__) /* warning conditions */
-#define LOGN(...)  __LOG(LOG_NOTICE, __VA_ARGS__)  /* normal but significant condition */
-#define LOGI(...)  __LOG(LOG_INFO, __VA_ARGS__)    /* informational */
-#define LOGD(...)  __LOG(LOG_DEBUG, __VA_ARGS__)   /* debug-level messages */
+#define ALOGM(...)  __ALOG(LOG_EMERG, __VA_ARGS__)   /* system is unusable */
+#define ALOGA(...)  __ALOG(LOG_ALERT, __VA_ARGS__)   /* action must be taken immediately */
+#define ALOGC(...)  __ALOG(LOG_CRIT, __VA_ARGS__)    /* critical conditions */
+#define ALOGE(...)  __ALOG(LOG_ERR, __VA_ARGS__)     /* error conditions */
+#define ALOGW(...)  __ALOG(LOG_WARNING, __VA_ARGS__) /* warning conditions */
+#define ALOGN(...)  __ALOG(LOG_NOTICE, __VA_ARGS__)  /* normal but significant condition */
+#define ALOGI(...)  __ALOG(LOG_INFO, __VA_ARGS__)    /* informational */
+#define ALOGD(...)  __ALOG(LOG_DEBUG, __VA_ARGS__)   /* debug-level messages */
+
+namespace AskUser {
 
 void init_log(void);
 
-#endif /* CYNARA_COMMON_LOG_H */
+} /* namespace AskUser */
+#endif /* _SRC_COMMON_LOG_H */

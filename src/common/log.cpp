@@ -23,7 +23,6 @@
  */
 
 #include "log.h"
-
 #include <cstring>
 #include <cstdlib>
 
@@ -33,6 +32,8 @@ int __log_level = LOG_DEBUG;
 #else
 int __log_level = LOG_ERR;
 #endif
+
+namespace AskUser {
 
 static int strlog2intlog(const char *strlog) {
   if(!strncmp("LOG_EMERG", strlog, strlen("LOG_EMERG")))
@@ -67,3 +68,5 @@ void init_log(void) {
 void init_log(void) {}
 
 #endif //ASKUSER_NO_LOGS
+
+} /* namespace AskUser */

@@ -34,10 +34,10 @@
 AskUser::Daemon::CynaraTalkerPtr cynaraTalker = nullptr;
 
 void kill_handler(int) {
-  LOGE("Killme!");
+  ALOGE("Killme!");
   if (cynaraTalker)
     cynaraTalker->stop();
-  LOGE("Closed!");
+  ALOGE("Closed!");
   exit(EXIT_SUCCESS);
   abort();
 }
@@ -46,7 +46,7 @@ int main()
 {
   using namespace std::placeholders;
   using namespace AskUser::Daemon;
-  init_log();
+  AskUser::init_log();
 
   try {
     int ret;
@@ -70,19 +70,19 @@ int main()
 
     ret = sd_notify(0, "READY=1");
     if (ret == 0) {
-        LOGW("Agent was not configured to notify its status");
+        ALOGW("Agent was not configured to notify its status");
     } else if (ret < 0) {
-        LOGE("sd_notify failed: [" << ret << "]");
+        ALOGE("sd_notify failed: [" << ret << "]");
     }
 
     notificationTalker.run();
   } catch (std::exception &e) {
-    LOGE("Askuserd stopped because of: <" << e.what() << ">.");
+    ALOGE("Askuserd stopped because of: <" << e.what() << ">.");
   } catch (...) {
-    LOGE("Askuserd stopped because of unknown unhandled exception.");
+    ALOGE("Askuserd stopped because of unknown unhandled exception.");
   }
 
-  LOGI("exiting");
+  ALOGI("exiting");
 
   cynaraTalker->stop();
 
