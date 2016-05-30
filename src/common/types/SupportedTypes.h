@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  limitations under the License
  */
 /**
- * @file        SupportedTypes.h
+ * @file        src/common/SupportedTypes.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
  * @brief       Definition of plugin supported types and agent type
  */
 
-#pragma once
+#ifndef _SRC_COMMON_SUPPORTEDTYPES_H
+#define _SRC_COMMON_SUPPORTEDTYPES_H
 
 #include <types/PolicyType.h>
 
@@ -31,20 +32,19 @@ const char* const AgentType = "AskUser";
 } //namespace Agent
 
 namespace Service {
-const Cynara::PolicyType ASK_USER = 10;
+const Cynara::PolicyType ASK_USER = 54;
 } //namespace Service
 
 namespace Client {
-const Cynara::PolicyType ALLOW_ONCE = 11;
-const Cynara::PolicyType ALLOW_PER_SESSION = 12;
 // This one will never reach client, but will be interpreted in service plugin
 const Cynara::PolicyType ALLOW_PER_LIFE = 13;
 
 const Cynara::PolicyType DENY_ONCE = 14;
-const Cynara::PolicyType DENY_PER_SESSION = 15;
 // This one will never reach client, but will be interpreted in service plugin
 const Cynara::PolicyType DENY_PER_LIFE = 16;
 } //namespace Client
 
 } //namespace SupportedTypes
 } //namespace AskUser
+
+#endif // _SRC_COMMON_SUPPORTEDTYPES_H

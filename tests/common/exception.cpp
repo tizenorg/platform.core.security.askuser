@@ -22,8 +22,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <common/Exception.h>
-#include <common/CynaraException.h>
+#include <exception/Exception.h>
+#include <exception/CynaraException.h>
 
 using namespace AskUser;
 

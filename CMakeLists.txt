@@ -14,6 +14,7 @@
 #
 # @file        CMakeLists.txt
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
+# @author      Oskar Switalski <o.switalski@samsung.com>
 #
 
 ############################# Check minimum CMake version #####################
@@ -67,16 +68,15 @@ IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
     ADD_DEFINITIONS("-DBUILD_TYPE_DEBUG")
 ENDIF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
 
-SET(TARGET_ASKUSER "askuser")
+SET(TARGET_ASKUSERD "askuser")
 SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
 SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
-SET(TARGET_CLIENT "askuser-test-client")
-SET(TARGET_ASKUSER_POPUP "askuser-popup")
-
-# Add definition for popup binary path
-ADD_DEFINITIONS(-DPOPUP_EXEC_PATH="${BIN_INSTALL_DIR}/${TARGET_ASKUSER_POPUP}")
+SET(TARGET_ASKUSER_NOTIFICATION "askuser-notification")
+SET(TARGET_TEST "askuser-test")
+SET(TARGET_TESTS "askuser-tests")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(systemd)
 ADD_SUBDIRECTORY(test)
+ADD_SUBDIRECTORY(tests)

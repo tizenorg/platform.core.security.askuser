@@ -1,64 +1,68 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016 Samsung Electronics Co.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 /**
- * @file        CynaraTalker.h
- * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
- * @brief       This file declares class representing request from cynara service
+ * @file        src/daemon/CynaraTalker.h
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Declaration of CynaraTalker class
  */
 
-#pragma once
+#ifndef CYNARATALKER_H
+#define CYNARATALKER_H
 
-#include <functional>
-#include <future>
-#include <mutex>
-#include <thread>
-
+#include <cstdint> // after merging patch to cynara not needed
 #include <cynara-agent.h>
 #include <cynara-plugin.h>
+#include <functional>
+#include <memory>
+#include <thread>
 
-#include <main/Request.h>
+#include <types/CynaraRequest.h>
+#include <types/Response.h>
 
 namespace AskUser {
 
-namespace Agent {
+namespace Daemon {
 
-typedef std::function<void(Request *)> RequestHandler;
+typedef std::function<void(CynaraRequestPtr)> RequestHandler;
 
-class CynaraTalker {
+class CynaraTalker
+{
 public:
-    CynaraTalker(RequestHandler requestHandler);
-    ~CynaraTalker() {}
+  CynaraTalker() = default;
+  ~CynaraTalker();
 
-    bool start();
-    bool stop();
+  void addResponse(Response response);
+  void setRequestHandler(RequestHandler requestHandler);
+  void start();
+  void stop();
 
-    bool sendResponse(RequestType requestType, RequestId requestId,
-                      const Cynara::PluginData &data = Cynara::PluginData());
+protected:
+  RequestHandler m_requestHandler;
+  cynara_agent *m_cynara;
 
-private:
-    RequestHandler m_requestHandler;
-    cynara_agent *m_cynara;
-    std::thread m_thread;
-    std::mutex m_mutex;
-    std::promise<bool> m_threadFinished;
-    std::future<bool> m_future;
+  std::thread m_thread;
+  bool m_stop_thread = false;
 
-    void run();
+  void run();
 };
 
-} // namespace Agent
+typedef std::unique_ptr<CynaraTalker> CynaraTalkerPtr;
 
-} // namespace AskUser
+} /* namespace Daemon */
+
+} /* namespace AskUser */
+
+#endif // CYNARATALKER_H

@@ -25,7 +25,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <common/Translator.h>
+#include <translator/Translator.h>
 
 using namespace AskUser;
 
@@ -47,7 +47,7 @@ TEST(TranslatorTest, PluginData_Strings) {
 }
 
 TEST(TranslatorTest, NotificationRequest) {
-    RequestId id = 1234;
+    cynara_agent_req_id id = 1234;
     std::string app = "lorem ipsum dolor est amet";
     std::string privilege = "http://example.com/permissions/example";
 

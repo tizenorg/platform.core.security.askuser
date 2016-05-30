@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,72 +14,77 @@
  *  limitations under the License
  */
 /**
- * @file        src/main/main.cpp
- * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
- * @brief       Main ask user daemon file
+ * @file        src/daemon/main.cpp
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Main askuser daemon file
  */
 
-#include <clocale>
 #include <csignal>
-#include <cstdlib>
-#include <cstring>
-#include <exception>
-#include <systemd/sd-journal.h>
+#include <functional>
 #include <systemd/sd-daemon.h>
+#include <type_traits>
+#include <unistd.h>
 
-#include <attributes/attributes.h>
-
+#include <exception/ErrnoException.h>
 #include <log/alog.h>
 
-#include "Agent.h"
+#include "CynaraTalker.h"
+#include "NotificationTalker.h"
 
-// Handle kill message from systemd
-void kill_handler(int sig UNUSED) {
-    ALOGD("Ask user agent service is going down now");
-    AskUser::Agent::Agent::stop();
+AskUser::Daemon::CynaraTalkerPtr cynaraTalker = nullptr;
+
+void kill_handler(int) {
+  ALOGE("Killme!");
+  if (cynaraTalker)
+    cynaraTalker->stop();
+  ALOGE("Closed!");
+  exit(EXIT_SUCCESS);
+  abort();
 }
 
-int main(int argc UNUSED, char **argv UNUSED) {
-    init_agent_log();
+int main()
+{
+  using namespace std::placeholders;
+  using namespace AskUser::Daemon;
+  init_agent_log();
 
+  try {
     int ret;
     struct sigaction act;
 
-    // Install kill handler - TERM signal will be delivered form systemd to kill this service
     memset(&act, 0, sizeof(act));
     act.sa_handler = &kill_handler;
-    if ((ret = sigaction(SIGTERM, &act, NULL)) < 0) {
-        ALOGE("sigaction failed [<<" << ret << "]");
-        return EXIT_FAILURE;
+    if ((ret = sigaction(SIGTERM, &act, NULL)) < 0)
+      throw AskUser::ErrnoException("Sigaction failed", errno);
+
+    cynaraTalker = std::move(CynaraTalkerPtr(new CynaraTalker));
+    NotificationTalker notificationTalker;
+
+    RequestHandler requestHandler = std::bind(&NotificationTalker::parseRequest, &notificationTalker, _1);
+    ResponseHandler responseHandler = std::bind(&CynaraTalker::addResponse, cynaraTalker.get(), _1);
+
+    notificationTalker.setResponseHandler(responseHandler);
+    cynaraTalker->setRequestHandler(requestHandler);
+
+    cynaraTalker->start();
+
+    ret = sd_notify(0, "READY=1");
+    if (ret == 0) {
+        ALOGW("Agent was not configured to notify its status");
+    } else if (ret < 0) {
+        ALOGE("sd_notify failed: [" << ret << "]");
     }
 
-    char *locale = setlocale(LC_ALL, "");
-    ALOGD("Current locale is: <" << locale << ">");
+    notificationTalker.run();
+  } catch (std::exception &e) {
+    ALOGE("Askuserd stopped because of: <" << e.what() << ">.");
+  } catch (...) {
+    ALOGE("Askuserd stopped because of unknown unhandled exception.");
+  }
 
-    // Block SIGCHLD signal for any thread - needed for Popup Backend
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGCHLD);
-    sigprocmask(SIG_BLOCK, &set, NULL);
+  ALOGI("exiting");
 
-    try {
-        AskUser::Agent::Agent agent;
+  cynaraTalker->stop();
 
-        int ret = sd_notify(0, "READY=1");
-        if (ret == 0) {
-            ALOGW("Agent was not configured to notify its status");
-        } else if (ret < 0) {
-            ALOGE("sd_notify failed: [" << ret << "]");
-        }
-
-        agent.run();
-    } catch (const std::exception &e) {
-        ALOGC("Agent stopped because of unhandled exception: <" << e.what() << ">");
-        return EXIT_FAILURE;
-    } catch (...) {
-        ALOGC("Agent stopped because of unknown unhandled exception.");
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

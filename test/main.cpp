@@ -26,8 +26,8 @@
 #include <cynara-client.h>
 #include <cynara-error.h>
 
-#include <common/CynaraException.h>
-#include <common/SupportedTypes.h>
+#include <exception/CynaraException.h>
+#include <types/SupportedTypes.h>
 
 #include <unistd.h>
 

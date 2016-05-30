@@ -16,41 +16,6 @@
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
 #
 
-PKG_CHECK_MODULES(AGENT_DEP
-    REQUIRED
-    cynara-agent
-    cynara-plugin
-    libsystemd-daemon
-    security-privilege-manager
-    )
 
-SET(ASKUSER_AGENT_PATH ${ASKUSER_PATH}/agent)
-
-SET(ASKUSER_SOURCES
-    ${ASKUSER_AGENT_PATH}/log/alog.cpp
-    ${ASKUSER_AGENT_PATH}/main/Agent.cpp
-    ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
-    ${ASKUSER_AGENT_PATH}/main/main.cpp
-    ${ASKUSER_AGENT_PATH}/ui/AskUIPopupBackend.cpp
-    ${ASKUSER_AGENT_PATH}/ui/popup-runner.cpp
-    ${ASKUSER_AGENT_PATH}/ui/serialization.cpp
-    )
-
-INCLUDE_DIRECTORIES(
-    ${ASKUSER_PATH}/common
-    ${AGENT_DEP_INCLUDE_DIRS}
-    ${ASKUSER_AGENT_PATH}
-    )
-
-ADD_EXECUTABLE(${TARGET_ASKUSER} ${ASKUSER_SOURCES})
-
-TARGET_LINK_LIBRARIES(${TARGET_ASKUSER}
-    ${AGENT_DEP_LIBRARIES}
-    ${ASKUSER_DEP_LIBRARIES}
-    ${TARGET_ASKUSER_COMMON}
-    )
-
-INSTALL(TARGETS ${TARGET_ASKUSER} DESTINATION ${BIN_INSTALL_DIR})
-
-ADD_SUBDIRECTORY(po)
-ADD_SUBDIRECTORY(popup-bin)
+ADD_SUBDIRECTORY(notification-daemon)
+ADD_SUBDIRECTORY(main)

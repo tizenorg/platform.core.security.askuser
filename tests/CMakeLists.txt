@@ -11,6 +11,8 @@ PKG_CHECK_MODULES(TESTS_DEP
 
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/common
+    ${PROJECT_SOURCE_DIR}/src/agent/main
     ${gmock_INCLUDE_DIRS}
 )
 
@@ -20,8 +22,8 @@ SET(TESTS_SOURCES
     ${TESTS_PATH}/common/translator.cpp
     ${TESTS_PATH}/daemon/notificationTalker.cpp
 
-    ${PROJECT_SOURCE_DIR}/src/common/Translator.cpp
-    ${PROJECT_SOURCE_DIR}/src/daemon/NotificationTalker.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/translator/Translator.cpp
+    ${PROJECT_SOURCE_DIR}/src/agent/main/NotificationTalker.cpp
    )
 
 ADD_DEFINITIONS(${TESTS_DEP_CFLAGS})

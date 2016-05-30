@@ -1,193 +1,161 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016 Samsung Electronics Co.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 /**
- * @file        CynaraTalker.cpp
- * @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
- * @brief       This file implements class of cynara talker
+ * @file        src/daemon/CynaraTalker.cpp
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Definition of CynaraTalker class
  */
-
-#include <csignal>
-#include <string>
-
-#include <attributes/attributes.h>
-#include <types/SupportedTypes.h>
-
-#include <log/alog.h>
 
 #include "CynaraTalker.h"
 
-namespace {
+#include <csignal>
+#include <cstring>
 
-class TypeException : std::exception {
-public:
-    TypeException(const std::string &msg) : m_what(msg) {};
-    virtual const char* what() const noexcept {
-        return m_what.c_str();
-    }
-
-private:
-    std::string m_what;
-};
-
-AskUser::Agent::RequestType cynaraType2AgentType(cynara_agent_msg_type type) {
-    switch (type) {
-        case CYNARA_MSG_TYPE_ACTION:
-            return AskUser::Agent::RT_Action;
-        case CYNARA_MSG_TYPE_CANCEL:
-            return AskUser::Agent::RT_Cancel;
-    }
-
-    throw TypeException("Unsupported request type: " + std::to_string(type) +
-                        " received from cynara.");
-}
-
-cynara_agent_msg_type agentType2CynaraType(AskUser::Agent::RequestType type) {
-    switch (type) {
-        case AskUser::Agent::RT_Action:
-            return CYNARA_MSG_TYPE_ACTION;
-        case AskUser::Agent::RT_Cancel:
-            return CYNARA_MSG_TYPE_CANCEL;
-        default: // let's make compiler happy
-            break;
-    }
-
-    throw TypeException("Invalid response type: " + std::to_string(type) + " to send to cynara.");
-}
-
-}
+#include <exception/CynaraException.h>
+#include <exception/Exception.h>
+#include <log/alog.h>
+#include <types/SupportedTypes.h>
+#include <translator/Translator.h>
 
 namespace AskUser {
 
-namespace Agent {
+namespace Daemon {
 
-CynaraTalker::CynaraTalker(RequestHandler requestHandler) : m_requestHandler(requestHandler),
-                                                            m_cynara(nullptr) {
-    m_future = m_threadFinished.get_future();
+namespace {
+
+RequestType toRequestType(cynara_agent_msg_type type)
+{
+  switch (type) {
+  case CYNARA_MSG_TYPE_ACTION:
+    return RequestType::RT_Action;
+  case CYNARA_MSG_TYPE_CANCEL:
+    return RequestType::RT_Cancel;
+  default:
+    break;
+  }
+  return RequestType::RT_Ignore;
 }
 
-bool CynaraTalker::start() {
-    if (!m_requestHandler) {
-        ALOGE("Empty request handler!");
-        return false;
-    }
-
-    m_thread = std::thread(&CynaraTalker::run, this);
-    return true;
+Cynara::PolicyType GuiResponseToPolicyType(GuiResponse responseType) {
+  switch (responseType) {
+  case GuiResponse::Allow:
+    return AskUser::SupportedTypes::Client::ALLOW_PER_LIFE;
+  case GuiResponse::Never:
+    return AskUser::SupportedTypes::Client::DENY_PER_LIFE;
+  default:
+    return AskUser::SupportedTypes::Client::DENY_ONCE;
+  }
 }
 
-bool CynaraTalker::stop() {
-    // There is no possibility to stop this thread nicely when it waits for requests from cynara
-    // We can only try to get rid of thread
-    auto status = m_future.wait_for(std::chrono::milliseconds(10));
-    if (status == std::future_status::ready) {
-        ALOGD("Cynara thread finished and ready to join.");
-        m_thread.join();
-        return true;
-    }
+} /* namespace */
 
-    ALOGD("Cynara thread not finished.");
-    return false;
+void CynaraTalker::start()
+{
+  m_thread = std::thread(&CynaraTalker::run, this);
 }
 
-void CynaraTalker::run() {
+void CynaraTalker::setRequestHandler(RequestHandler requestHandler)
+{
+  m_requestHandler = requestHandler;
+}
+
+CynaraTalker::~CynaraTalker()
+{
+  m_stop_thread = true;
+  cynara_agent_finish(m_cynara);
+  m_thread.join();
+}
+
+void CynaraTalker::addResponse(Response response)
+{
+  std::string sResponse = answerToData(GuiResponseToPolicyType(response.response));
+
+  void *data = strdup(sResponse.c_str());
+
+  int ret = cynara_agent_put_response(m_cynara, CYNARA_MSG_TYPE_ACTION, response.id, static_cast<void*>(data), sResponse.size());
+  if (ret != CYNARA_API_SUCCESS) {
+    ALOGE("putting response to cynara failed: " << ret);
+  }
+
+  free(data);
+}
+
+void CynaraTalker::stop()
+{
+  if (!m_stop_thread) {
+    if (m_requestHandler)
+      m_requestHandler(std::make_shared<CynaraRequest>(RequestType::RT_Close));
+
+    m_stop_thread = true;
+  }
+}
+
+void CynaraTalker::run()
+{
+  try {
     int ret;
-    sigset_t mask;
 
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGTERM);
-    if ((ret = sigprocmask(SIG_BLOCK, &mask, nullptr)) < 0) {
-        ALOGE("sigprocmask failed [<<" << ret << "]");
-    }
+    ALOGD("CynaraTalker starting...");
 
-    ret = cynara_agent_initialize(&m_cynara, SupportedTypes::Agent::AgentType);
-    if (ret != CYNARA_API_SUCCESS) {
-        ALOGE("Initialization of cynara structure failed with error: [" << ret << "]");
-        m_requestHandler(new Request(RT_Close, 0, nullptr, 0)); // Notify agent he should die
-        return;
-    }
+    if (!m_requestHandler)
+      throw Exception("Missing request handler");
+
+    ret = cynara_agent_initialize(&m_cynara, "AskUser");
+    if (ret != CYNARA_API_SUCCESS)
+      throw CynaraException("cynara_agent_initialize", ret);
 
     void *data = nullptr;
 
-    try {
-        while (true) {
-            cynara_agent_msg_type req_type;
-            cynara_agent_req_id req_id;
-            size_t data_size = 0;
+    ALOGD("CynaraTalker running");
 
-            ret = cynara_agent_get_request(m_cynara, &req_type, &req_id, &data, &data_size);
-            if (ret != CYNARA_API_SUCCESS) {
-                ALOGE("Receiving request from cynara failed with error: [" << ret << "]");
-                m_requestHandler(new Request(RT_Close, 0, nullptr, 0));
-                break;
-            }
+    while (!m_stop_thread) {
+      cynara_agent_msg_type req_type;
+      cynara_agent_req_id req_id;
+      size_t data_size = 0;
 
-            try {
-                m_requestHandler(new Request(cynaraType2AgentType(req_type), req_id, data,
-                                             data_size));
-            } catch (const TypeException &e) {
-                ALOGE("TypeException: <" << e.what() << "> Request dropped!");
-            }
-            free(data);
-            data = nullptr;
-        }
-    } catch (const std::exception &e) {
-        ALOGC("Unexpected exception: <" << e.what() << ">");
-    } catch (...) {
-        ALOGE("Unexpected unknown exception caught!");
+      ret = cynara_agent_get_request(m_cynara, &req_type, &req_id, &data, &data_size);
+
+      if (m_stop_thread)
+        break;
+
+      if (ret != CYNARA_API_SUCCESS) {
+        m_requestHandler(std::make_shared<CynaraRequest>(RequestType::RT_Close));
+        throw CynaraException("cynara_agent_get_request", ret);
+      }
+
+      std::string user, client, privilege;
+
+      if (data_size)
+        dataToRequest(static_cast<char *>(data), client, user, privilege);
+
+      auto req = std::make_shared<CynaraRequest>(toRequestType(req_type), req_id, user, client,
+                                                 privilege);
+      m_requestHandler(req);
+
+      free(data);
+      data = nullptr;
     }
 
-    free(data);
-
-    std::unique_lock<std::mutex> mlock(m_mutex);
-    ret = cynara_agent_finish(m_cynara);
-    m_cynara = nullptr;
-    if (ret != CYNARA_API_SUCCESS) {
-        ALOGE("Finishing cynara connection failed with error: [" << ret << "]");
-    }
-
-    m_threadFinished.set_value(true);
+  } catch (std::exception &e) {
+    ALOGE("CynaraTalker stopped because of: <" << e.what() << ">.");
+  } catch (...) {
+    ALOGE("CynaraTalker stopped because of unknown unhandled exception.");
+  }
 }
 
-bool CynaraTalker::sendResponse(RequestType requestType, RequestId requestId,
-                                const Cynara::PluginData &data) {
+} /* namespace Daemon */
 
-    std::unique_lock<std::mutex> mlock(m_mutex);
-
-    if (!m_cynara) {
-        ALOGE("Trying to send response using uninitialized cynara connection!");
-        return false;
-    }
-
-    int ret;
-    try {
-        ret = cynara_agent_put_response(m_cynara, agentType2CynaraType(requestType), requestId,
-                                            data.size() ? data.data() : nullptr, data.size());
-    } catch (const TypeException &e) {
-        ALOGE("TypeException: <" << e.what() << "> Response dropped!");
-        ret = CYNARA_API_INVALID_PARAM;
-    }
-
-    if (ret != CYNARA_API_SUCCESS) {
-        ALOGE("Sending response to cynara failed with error: [" << ret << "]");
-        return false;
-    }
-
-    return true;
-}
-
-} // namespace Agent
-
-} // namespace AskUser
+} /* namespace AskUser */

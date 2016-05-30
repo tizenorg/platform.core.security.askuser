@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,82 +14,108 @@
  *  limitations under the License
  */
 /**
- * @file        Translator.cpp
- * @author      Zofia Abramowska <z.abramowska@samsung.com>
- * @brief       Implementation of Translator methods
+ * @file        src/common/Translator.cpp
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Definition of Translator functions
  */
 
 #include "Translator.h"
 
-#include <types/AgentErrorMsg.h>
-
-#include <limits>
-#include <stdexcept>
 #include <sstream>
 
 namespace AskUser {
-namespace Translator {
-namespace Agent {
 
-RequestData dataToRequest(const Cynara::PluginData &data) {
-    std::stringstream stream(data);
-    std::size_t strSize;
-    std::string members[3];
+void dataToRequest(const Cynara::PluginData &data, std::string &client, std::string &user,
+                   std::string &privilege) {
+  std::stringstream stream(data);
+  std::size_t strSize;
+  std::string members[3];
 
-    for (auto &member : members) {
-        stream >> strSize;
-        std::vector<char> buffer(strSize, '\0');
-        char separator;
-        //Consume separator
-        stream.read(&separator, 1);
-        stream.read(buffer.data(), strSize);
-        //read doesn't append null
-        member.assign(buffer.begin(), buffer.end());
-    }
-    return RequestData{members[0], members[1], members[2]};
-}
+  for (auto &member : members) {
+    stream >> strSize;
+    std::vector<char> buffer(strSize, '\0');
+    char separator;
+    //Consume separator
+    stream.read(&separator, 1);
+    stream.read(buffer.data(), strSize);
+    //read doesn't append null
+    member.assign(buffer.begin(), buffer.end());
+  }
 
-Cynara::PluginData answerToData(Cynara::PolicyType answer, const std::string &errMsg) {
-    if (errMsg.empty())
-        return std::to_string(answer);
-    else
-        return errMsg;
-}
-
-} //namespace Agent
-
-namespace Plugin {
-
-Cynara::PolicyType dataToAnswer(const Cynara::PluginData &data) {
-    // data is an error string
-    if (data == AgentErrorMsg::Error || data == AgentErrorMsg::Timeout)
-        return Cynara::PredefinedPolicyType::DENY;
-    // data is policy type
-    long long policyType;
-    try {
-        policyType = std::stoll(data);
-    } catch (const std::exception &e) {
-        throw TranslateErrorException("Could not convert response to PolicyType : " +
-                                      data);
-    }
-    auto maxPolicyType = std::numeric_limits<Cynara::PolicyType>::max();
-    if (policyType > maxPolicyType) {
-        throw TranslateErrorException("Value of response exceeds max value of PolicyType : "
-                                      + std::to_string(policyType));
-    }
-    return static_cast<Cynara::PolicyType>(policyType);
+  client = std::move(members[0]);
+  user = std::move(members[1]);
+  privilege = std::move(members[2]);
 }
 
 Cynara::PluginData requestToData(const std::string &client,
                                  const std::string &user,
                                  const std::string &privilege)
 {
-    const char separator = ' ';
-    return std::to_string(client.length()) + separator + client + separator
-            + std::to_string(user.length()) + separator + user + separator
-            + std::to_string(privilege.length()) + separator + privilege + separator;
+  const char separator = ' ';
+  return std::to_string(client.length()) + separator + client + separator
+       + std::to_string(user.length()) + separator + user + separator
+       + std::to_string(privilege.length()) + separator + privilege + separator;
 }
 
-} //namespace Plugin
-} //namespace Translator
-} //namespace AskUser
+Cynara::PolicyType dataToAnswer(const Cynara::PluginData &data) {
+  long long policyType;
+  policyType = std::stoll(data);
+  return static_cast<Cynara::PolicyType>(policyType);
+}
+
+Cynara::PluginData answerToData(Cynara::PolicyType answer)
+{
+  return std::to_string(answer);
+}
+
+std::string GuiResponseToString(GuiResponse response)
+{
+    switch (response)
+    {
+    case GuiResponse::Allow:
+        return "Allow";
+    case GuiResponse::Deny:
+        return "Deny once";
+    case GuiResponse::Never:
+        return "Deny";
+    case GuiResponse::Error:
+        return "Error";
+    default:
+        return "None";
+    }
+}
+
+NotificationRequest dataToNotificationRequest(char *data) {
+  std::stringstream stream(data);
+  std::size_t strSize;
+  char separator;
+
+  cynara_agent_req_id id;
+  std::string members[2];
+
+  stream >> id;
+  stream.read(&separator, 1);
+
+  for (auto &member : members) {
+    stream >> strSize;
+    std::vector<char> buffer(strSize, '\0');
+    char separator;
+    //Consume separator
+    stream.read(&separator, 1);
+    stream.read(buffer.data(), strSize);
+    //read doesn't append null
+    member.assign(buffer.begin(), buffer.end());
+  }
+
+  return NotificationRequest({id, std::move(members[0]), std::move(members[1])});
+}
+
+std::string notificationRequestToData(cynara_agent_req_id id, const std::string &app, const std::string &privilege)
+{
+  const char separator = ' ';
+  return std::to_string(id) + separator +
+         std::to_string(app.length()) + separator + app + separator +
+         std::to_string(privilege.length()) + separator + privilege + separator + separator;
+}
+
+} /* namespace AskUser */

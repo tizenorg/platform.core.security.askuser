@@ -26,7 +26,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <daemon/NotificationTalker.h>
+#include <NotificationTalker.h>
 
 using namespace AskUser::Daemon;
 using namespace AskUser;
@@ -61,7 +61,7 @@ TEST(NotificationTalker, addRequest) {
     using testing::Invoke;
 
     FakeNotificationTalker notificationTalker;
-    RequestId id = 1;
+    cynara_agent_req_id id = 1;
     std::string user = "user";
     std::string client = "client";
     std::string privilege = "privilege";
@@ -83,7 +83,7 @@ TEST(NotificationTalker, addAndRemoveRequest) {
     using testing::Invoke;
 
     FakeNotificationTalker notificationTalker;
-    RequestId id = 1;
+    cynara_agent_req_id id = 1;
     std::string user = "user";
     std::string client = "client";
     std::string privilege = "privilege";
@@ -112,8 +112,8 @@ TEST(NotificationTalker, addAndRemoveNonExistingRequest) {
     using testing::Invoke;
 
     FakeNotificationTalker notificationTalker;
-    RequestId id = 1;
-    RequestId id2 = 2;
+    cynara_agent_req_id id = 1;
+    cynara_agent_req_id id2 = 2;
     std::string user = "user";
     std::string client = "client";
     std::string privilege = "privilege";
@@ -142,7 +142,7 @@ TEST(NotificationTalker, removeNonExistingRequest) {
     using testing::Invoke;
 
     FakeNotificationTalker notificationTalker;
-    RequestId id = 1;
+    cynara_agent_req_id id = 1;
 
     CynaraRequestPtr ptr = std::make_shared<CynaraRequest>(RequestType::RT_Cancel, id);
 
