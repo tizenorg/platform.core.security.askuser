@@ -56,6 +56,14 @@ BuildRequires: pkgconfig(cynara-admin)
 %description -n askuser-test
 Simple tool for testing askuser packages and/or showing simple demo
 
+%package -n askuser-tests
+Summary:    Unit tests for askuser
+BuildRequires: pkgconfig(gmock)
+
+%description -n askuser-tests
+Unit tests for askuser. A standalone application checking correctness
+of askuser's components.
+
 %prep
 %setup -q
 cp -a %{SOURCE1001} .
@@ -144,3 +152,7 @@ systemctl restart cynara.service
 %manifest askuser-test.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-test
+
+%files -n askuser-tests
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-tests
