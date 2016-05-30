@@ -33,22 +33,26 @@ Daemon allowing user to grant or deny acces for given application and privilege
 Summary:    Askuser common library
 
 %description -n libaskuser-common
-askuser common library with common functionalities
+Askuser common library with common functionalities
+
+%package -n askuser-notification
+Summary: User daemon which shows popup with privilege request
+
+%description -n askuser-notification
+User daemon which shows popup with privilege request
 
 %package -n askuser-plugins
 Requires:   cynara
 Requires:   libcynara-client
-Summary:    Askuser commons library
+Summary:    Askuser cynara plugins
 
 %description -n askuser-plugins
-askuser plugin library with cynara service and client side plugins
+Askuser plugin library with cynara service and client side plugins
 
 %package -n askuser-test
-BuildRequires: pkgconfig(cynara-client)
-Summary:    Simple tools for testing cynara extensions
-
-%description -n askuser-test
-utility for testing askuser extensions
+BuildRequires: pkgconfig(cynara-admin)
+BuildRequires: pkgconfig(gmock)
+Summary: Tool for testing askuser packages and unit tests for askuser
 
 %prep
 %setup -q
@@ -56,6 +60,7 @@ cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
 cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -121,5 +126,8 @@ fi
 %files -n askuser-test
 %manifest askuser-test.manifest
 %license LICENSE
-%attr(755,root,root) /usr/bin/askuser-test-client
-%attr(755,root,root) /usr/bin/askuser-test.sh
+%attr(755,root,root) /usr/bin/askuser-test
+
+%files -n askuser-tests
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-tests
