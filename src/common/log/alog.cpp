@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#include "alog.h"
+#include "log.h"
 
 #ifdef BUILD_TYPE_DEBUG
 int __alog_level = LOG_DEBUG;
