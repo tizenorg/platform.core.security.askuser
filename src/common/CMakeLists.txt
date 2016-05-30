@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
+# Copyright (c) 2014-2016 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -19,32 +19,24 @@ PKG_CHECK_MODULES(COMMON_DEP
     REQUIRED
     cynara-plugin
     cynara-agent
+    libsystemd-journal
     )
 
 SET(ASKUSER_COMMON_VERSION_MAJOR 0)
 SET(ASKUSER_COMMON_VERSION ${ASKUSER_COMMON_VERSION_MAJOR}.1.0)
 
-SET(COMMON_DEPS
-    libsystemd-journal
-    )
-
-PKG_CHECK_MODULES(ASKUSER_DEP
-    REQUIRED
-    ${COMMON_DEPS}
-    )
-
 INCLUDE_DIRECTORIES(SYSTEM
-    ${ASKUSER_DEP_INCLUDE_DIRS}
+    ${COMMON_DEP_INCLUDE_DIRS}
     )
 
 SET(COMMON_PATH ${ASKUSER_PATH}/common)
 
 INCLUDE_DIRECTORIES(
-    ${COMMON_DEP_INCLUDE_DIRS}
     ${COMMON_PATH}
     )
 
 SET(COMMON_SOURCES
+    ${COMMON_PATH}/log/alog.cpp
     ${COMMON_PATH}/translator/Translator.cpp
     ${COMMON_PATH}/types/AgentErrorMsg.cpp
     ${COMMON_PATH}/util/SafeFunction.cpp
@@ -62,7 +54,7 @@ SET_TARGET_PROPERTIES(
     )
 
 TARGET_LINK_LIBRARIES(${TARGET_ASKUSER_COMMON}
-    ${ASKUSER_DEP_LIBRARIES}
+    ${COMMON_DEP_LIBRARIES}
     )
 
 INSTALL(TARGETS ${TARGET_ASKUSER_COMMON} DESTINATION ${LIB_INSTALL_DIR})
