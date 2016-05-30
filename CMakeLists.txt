@@ -72,10 +72,7 @@ SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
 SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
 SET(TARGET_CLIENT "askuser-test-client")
-SET(TARGET_ASKUSER_POPUP "askuser-popup")
 
-# Add definition for popup binary path
-ADD_DEFINITIONS(-DPOPUP_EXEC_PATH="${BIN_INSTALL_DIR}/${TARGET_ASKUSER_POPUP}")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(systemd)

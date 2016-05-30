@@ -105,7 +105,6 @@ fi
 %manifest %{name}.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/%{name}
-%attr(755,root,root) /usr/bin/%{name}-popup
 /usr/lib/systemd/system/%{name}.service
 
 %files -n libaskuser-common
