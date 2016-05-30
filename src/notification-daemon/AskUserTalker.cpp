@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include <common/Types.h>
+#include <common/ErrnoException.h>
 #include <common/Exception.h>
 #include <common/Translator.h>
 
@@ -113,7 +114,7 @@ void AskUserTalker::run()
 
   sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
   if (sockfd == -1)
-    throw Exception("Creating socket failed", errno);
+    throw ErrnoException("Creating socket failed", errno);
 
   remote.sun_family = AF_UNIX;
   strcpy(remote.sun_path, socketpath);
@@ -122,7 +123,7 @@ void AskUserTalker::run()
 
   ret = connect(sockfd, (struct sockaddr *)&remote, len);
   if (ret == -1)
-    throw Exception("Connecting to socket failed", errno);
+    throw ErrnoException("Connecting to socket failed", errno);
 
   while (!stopFlag) {
     size_t size;
@@ -132,7 +133,7 @@ void AskUserTalker::run()
 
     len = recv(sockfd, &size, sizeof(size), 0);
     if (len < 0) {
-      throw Exception("Recieving data from socket error", errno);
+      throw ErrnoException("Recieving data from socket error", errno);
     } else if (len == 0) {
       ALOGI("Askuserd closed connection, closing...");
       break;
@@ -142,7 +143,7 @@ void AskUserTalker::run()
 
     len = recv(sockfd, buf, size, 0);
     if (len < 0) {
-      throw Exception("Recieving data from socket error", errno);
+      throw ErrnoException("Recieving data from socket error", errno);
     } else if (len == 0) {
       ALOGI("Askuserd closed connection, closing...");
       break;
@@ -160,7 +161,7 @@ void AskUserTalker::run()
 
     len = send(sockfd, &response, sizeof(response), 0);
     if (len < 0)
-      throw Exception("Sending data to socket error", errno);
+      throw ErrnoException("Sending data to socket error", errno);
 
     uint8_t ack = 0x00;
     len = recv(sockfd, &ack, sizeof(ack), 0);

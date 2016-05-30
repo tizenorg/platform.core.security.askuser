@@ -21,6 +21,7 @@
 
 #include "GuiRunner.h"
 
+#include <common/ErrnoException.h>
 #include <common/Exception.h>
 #include <common/Translator.h>
 #include <privilegemgr/privilege_info.h>
