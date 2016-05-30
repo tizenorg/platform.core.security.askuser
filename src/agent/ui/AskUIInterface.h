@@ -31,7 +31,7 @@ namespace AskUser {
 
 namespace Agent {
 
-typedef enum : uint8_t {
+typedef enum {
     URT_NO_ONCE,
     URT_NO_SESSION,
     URT_NO_LIFE,

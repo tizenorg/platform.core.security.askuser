@@ -16,7 +16,6 @@ BuildRequires: gettext-tools
 BuildRequires: pkgconfig(capi-base-common)
 BuildRequires: pkgconfig(cynara-agent)
 BuildRequires: pkgconfig(cynara-plugin)
-BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: zip
@@ -105,7 +104,6 @@ fi
 %manifest %{name}.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/%{name}
-%attr(755,root,root) /usr/bin/%{name}-popup
 /usr/lib/systemd/system/%{name}.service
 
 %files -n libaskuser-common

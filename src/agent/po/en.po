@@ -21,12 +21,3 @@ msgstr "Yes restart"
 
 msgid "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE"
 msgstr "Application: %s, ran by user: %s, requested privilege:\n%s\nGrant access to privilege?"
-
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE_NO_NEWLINE"
-msgstr "Application: %s, ran by user: %s, requested privilege: %s. Grant access to privilege?"
-
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_SESSION"
-msgstr "Remember for session"
-
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_LIFE"
-msgstr "Remember until restart"

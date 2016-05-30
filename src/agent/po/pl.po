@@ -22,11 +22,3 @@ msgstr "Tak restart"
 msgid "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE"
 msgstr "Aplikacja: %s, uruchomiona przez użytkownika: %s, zażądała zasobu:\n %s\nUdzielić dostępu?"
 
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE_NO_NEWLINE"
-msgstr "Aplikacja: %s, uruchomiona przez użytkownika: %s, zażądała zasobu: %s. Udzielić dostępu?"
-
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_SESSION"
-msgstr "Zapmiętaj do końca sesji"
-
-msgid "SID_PRIVILEGE_REQUEST_DIALOG_CHECKBOX_REMEMBER_LIFE"
-msgstr "Zapamiętaj do restartu"

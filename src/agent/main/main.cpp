@@ -56,12 +56,6 @@ int main(int argc UNUSED, char **argv UNUSED) {
     char *locale = setlocale(LC_ALL, "");
     ALOGD("Current locale is: <" << locale << ">");
 
-    // Block SIGCHLD signal for any thread - needed for Popup Backend
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGCHLD);
-    sigprocmask(SIG_BLOCK, &set, NULL);
-
     try {
         AskUser::Agent::Agent agent;
 

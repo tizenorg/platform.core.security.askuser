@@ -33,8 +33,8 @@
 #include <types/SupportedTypes.h>
 
 #include <log/alog.h>
+
 #include "Agent.h"
-#include <ui/AskUIPopupBackend.h>
 
 namespace AskUser {
 
@@ -205,7 +205,7 @@ void Agent::processUIResponse(const Response &response) {
 
 bool Agent::startUIForRequest(Request *request) {
     auto data = Translator::Agent::dataToRequest(request->data());
-    AskUIInterfacePtr ui(new AskUIPopupBackend());
+    AskUIInterfacePtr ui(nullptr);
 
     auto handler = [&](RequestId requestId, UIResponseType resultType) -> void {
                        UIResponseHandler(requestId, resultType);
