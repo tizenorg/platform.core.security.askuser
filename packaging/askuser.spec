@@ -8,6 +8,7 @@ Source0:    %{name}-%{version}.tar.gz
 Source1001:    %{name}.manifest
 Source1002:    askuser-notification.manifest
 Source1003:    askuser-plugins.manifest
+Source1004:    libaskuser-common.manifest
 BuildRequires: cmake
 BuildRequires: libwayland-egl
 BuildRequires: pkgconfig(elementary)
@@ -40,11 +41,18 @@ Summary:    Askuser cynara plugins
 %description -n askuser-plugins
 Askuser plugin library with cynara service and client side plugins
 
+%package -n libaskuser-common
+Summary:    Askuser common library
+
+%description -n libaskuser-common
+Askuser common library with common functionalities
+
 %prep
 %setup -q
 cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
+cp -a %{SOURCE1004} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -66,6 +74,10 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+%post -n libaskuser-common -p /sbin/ldconfig
+
+%postun -n libaskuser-common -p /sbin/ldconfig
+
 %files
 %manifest %{name}.manifest
 %license LICENSE
@@ -75,3 +87,8 @@ rm -rf %{buildroot}
 %manifest askuser-notification.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
+
+%files -n libaskuser-common
+%manifest libaskuser-common.manifest
+%license LICENSE
+%{_libdir}/libaskuser-common.so*
