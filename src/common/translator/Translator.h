@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,45 +14,38 @@
  *  limitations under the License
  */
 /**
- * @file        Translator.h
- * @author      Zofia Abramowska <z.abramowska@samsung.com>
- * @brief       Definition of Translator methods and TranslateErrorException class
+ * @file        src/common/Translator.h
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
+ * @brief       Declaration of Translator functions
  */
 
-#pragma once
+#ifndef _SRC_COMMON_TRANSLATOR_H
+#define _SRC_COMMON_TRANSLATOR_H
 
-#include <types/RequestData.h>
-#include <types/SupportedTypes.h>
 #include <cynara-plugin.h>
-
-#include <exception>
 #include <string>
 
+#include <types/Response.h>
+#include <types/NotificationRequest.h>
+#include <types/CynaraRequest.h>
+
 namespace AskUser {
-namespace Translator {
 
-class TranslateErrorException : std::exception {
-public:
-    TranslateErrorException(const std::string &msg) : m_what(msg) {};
-    virtual const char* what() const noexcept {
-        return m_what.c_str();
-    }
-private:
-    std::string m_what;
-};
+void dataToRequest(const Cynara::PluginData &data, std::string &client, std::string &user,
+                   std::string &privilege);
 
-namespace Agent {
-    RequestData dataToRequest(const Cynara::PluginData &data);
-    Cynara::PluginData answerToData(Cynara::PolicyType answer, const std::string &errMsg);
-} // namespace Agent
+Cynara::PluginData requestToData(const std::string &client,
+                                 const std::string &user,
+                                 const std::string &privilege);
 
-namespace Plugin {
-    Cynara::PolicyType dataToAnswer(const Cynara::PluginData &data);
-    Cynara::PluginData requestToData(const std::string &client,
-                                     const std::string &user,
-                                     const std::string &privilege);
-} // namespace Plugin
+Cynara::PolicyType dataToAnswer(const Cynara::PluginData &data);
+Cynara::PluginData answerToData(Cynara::PolicyType answer);
 
-} // namespace Translator
-} // namespace AskUser
+std::string GuiResponseToString(GuiResponse response);
 
+NotificationRequest dataToNotificationRequest(char *data);
+std::string notificationRequestToData(cynara_agent_req_id id, const std::string &app,
+                                      const std::string &privilege);
+} /* namespace AskUser */
+
+#endif // _SRC_COMMON_TRANSLATOR_H
