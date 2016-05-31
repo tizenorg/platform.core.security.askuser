@@ -40,6 +40,7 @@ SET(COMMON_SOURCES
     ${COMMON_PATH}/translator/Translator.cpp
     ${COMMON_PATH}/types/AgentErrorMsg.cpp
     ${COMMON_PATH}/util/SafeFunction.cpp
+    ${COMMON_PATH}/config/Path.cpp
     )
 
 ADD_DEFINITIONS("-fvisibility=default")
