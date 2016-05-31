@@ -21,7 +21,6 @@
 
 #include "Translator.h"
 
-#include <types/AgentErrorMsg.h>
 
 #include <limits>
 #include <stdexcept>
@@ -49,22 +48,22 @@ RequestData dataToRequest(const Cynara::PluginData &data) {
     return RequestData{members[0], members[1], members[2]};
 }
 
-Cynara::PluginData answerToData(Cynara::PolicyType answer, const std::string &errMsg) {
-    if (errMsg.empty())
-        return std::to_string(answer);
-    else
-        return errMsg;
+Cynara::PluginData answerToData(Cynara::PolicyType answer) {
+    return std::to_string(answer);
+}
+
+std::string notificationRequestToData(cynara_agent_req_id id, const std::string &app, const std::string &privilege)
+{
+    const char separator = ' ';
+    return std::to_string(id) + separator +
+           std::to_string(app.length()) + separator + app + separator +
+           std::to_string(privilege.length()) + separator + privilege + separator + separator;
 }
 
 } //namespace Agent
 
 namespace Plugin {
-
 Cynara::PolicyType dataToAnswer(const Cynara::PluginData &data) {
-    // data is an error string
-    if (data == AgentErrorMsg::Error || data == AgentErrorMsg::Timeout)
-        return Cynara::PredefinedPolicyType::DENY;
-    // data is policy type
     long long policyType;
     try {
         policyType = std::stoll(data);
