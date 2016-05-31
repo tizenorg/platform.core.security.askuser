@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014-2015 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  *  limitations under the License
  */
 /**
- * @file        ClientPlugin.cpp
+ * @file        src/plugin/client/ClientPlugin.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of cynara client side AskUser plugin.
  */
 
@@ -24,19 +25,13 @@
 #include <vector>
 
 #include <attributes/attributes.h>
-#include <log/log.h>
-#include <types/PolicyDescription.h>
 #include <types/SupportedTypes.h>
 
 using namespace Cynara;
 
 namespace AskUser {
 const std::vector<PolicyDescription> clientDescriptions = {
-        { SupportedTypes::Client::ALLOW_ONCE, "Allow once" },
-        { SupportedTypes::Client::ALLOW_PER_SESSION, "Allow per session" },
-
-        { SupportedTypes::Client::DENY_ONCE, "Deny once" },
-        { SupportedTypes::Client::DENY_PER_SESSION, "Deny per session" }
+    { SupportedTypes::Client::DENY_ONCE, "Deny once" },
 };
 
 class ClientPlugin : public ClientPluginInterface {
@@ -45,42 +40,23 @@ public:
         return clientDescriptions;
     }
 
-    bool isCacheable(const ClientSession &session UNUSED, const PolicyResult &result) {
-        return (result.policyType() == SupportedTypes::Client::ALLOW_PER_SESSION
-                || result.policyType() == SupportedTypes::Client::DENY_PER_SESSION);
+    bool isCacheable(const ClientSession &session UNUSED, const PolicyResult &result UNUSED) {
+        return false;
     }
 
-    bool isUsable(const ClientSession &session,
-                  const ClientSession &prevSession,
+    bool isUsable(const ClientSession &session UNUSED,
+                  const ClientSession &prevSession UNUSED,
                   bool &updateSession,
-                  PolicyResult &result)
+                  PolicyResult &result UNUSED)
     {
         updateSession = false;
-
-        switch (result.policyType()) {
-        case SupportedTypes::Client::ALLOW_PER_SESSION:
-        case SupportedTypes::Client::DENY_PER_SESSION:
-            if (session == prevSession) {
-                return true;
-            }
-            LOGD("Previous session <" << prevSession << "> does not match current session <"
-                    << session << ">");
-            return false;
-        default:
-            return false;
-        }
+        return false;
     }
 
     void invalidate() {}
 
-    virtual int toResult(const ClientSession &session UNUSED, PolicyResult &result) {
-        switch (result.policyType()) {
-            case SupportedTypes::Client::ALLOW_ONCE:
-            case SupportedTypes::Client::ALLOW_PER_SESSION:
-                return CYNARA_API_ACCESS_ALLOWED;
-            default:
-                return CYNARA_API_ACCESS_DENIED;
-        }
+    virtual int toResult(const ClientSession &session UNUSED, PolicyResult &result UNUSED) {
+        return CYNARA_API_ACCESS_DENIED;
     }
 };
 
