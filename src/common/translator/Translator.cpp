@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  *  limitations under the License
  */
 /**
- * @file        Translator.cpp
+ * @file        src/common/Translator.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of Translator methods
  */
 
 #include "Translator.h"
 
-
 #include <limits>
-#include <stdexcept>
 #include <sstream>
 
 namespace AskUser {
@@ -90,5 +89,48 @@ Cynara::PluginData requestToData(const std::string &client,
 }
 
 } //namespace Plugin
-} //namespace Translator
+
+namespace Gui {
+std::string responseToString(GuiResponse response)
+{
+    switch (response) {
+    case GuiResponse::Allow:
+        return "Allow";
+    case GuiResponse::Deny:
+        return "Deny once";
+    case GuiResponse::Never:
+        return "Deny";
+    case GuiResponse::Error:
+        return "Error";
+    default:
+        return "None";
+    }
+}
+
+NotificationRequest dataToNotificationRequest(char *data) {
+    std::stringstream stream(data);
+    std::size_t strSize;
+    char separator;
+
+    cynara_agent_req_id id;
+    std::string members[2];
+
+    stream >> id;
+    stream.read(&separator, 1);
+
+    for (auto &member : members) {
+        stream >> strSize;
+        std::vector<char> buffer(strSize, '\0');
+        char separator;
+        //Consume separator
+        stream.read(&separator, 1);
+        stream.read(buffer.data(), strSize);
+        //read doesn't append null
+        member.assign(buffer.begin(), buffer.end());
+    }
+
+    return NotificationRequest({id, std::move(members[0]), std::move(members[1])});
+}
+
+} //namespace Gui
 } //namespace AskUser

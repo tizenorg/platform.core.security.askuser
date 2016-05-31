@@ -55,7 +55,7 @@ private:
     std::mutex m_mutex;
     std::promise<bool> m_threadFinished;
     std::future<bool> m_future;
-
+    bool m_run;
     void run();
 };
 

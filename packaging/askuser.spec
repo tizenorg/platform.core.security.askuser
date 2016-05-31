@@ -1,6 +1,6 @@
 Name:       askuser
 Summary:    Agent service for Cynara 'ask user' policy
-Version:    0.1.1
+Version:    0.2.0
 Release:    1
 Group:      Security/Access Control
 License:    Apache-2.0
@@ -9,17 +9,19 @@ Source1001:    %{name}.manifest
 Source1002:    libaskuser-common.manifest
 Source1003:    askuser-plugins.manifest
 Source1004:    askuser-test.manifest
+Source1005:    askuser-notification.manifest
 BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: cmake
 BuildRequires: libwayland-egl
 BuildRequires: gettext-tools
-BuildRequires: pkgconfig(capi-base-common)
 BuildRequires: pkgconfig(cynara-agent)
+BuildRequires: pkgconfig(cynara-creds-socket)
 BuildRequires: pkgconfig(cynara-plugin)
 BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
-BuildRequires: zip
+BuildRequires: pkgconfig(security-manager)
+BuildRequires: coregl
 %{?systemd_requires}
 
 %if !%{defined build_type}
@@ -84,17 +86,22 @@ rm -rf %{buildroot}
 %find_lang %{name}
 
 %post
+# todo properly use systemd --user
+ln -s /lib/systemd/user/askuser-notification.service \
+/usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
+
 systemctl daemon-reload
 
 if [ $1 = 1 ]; then
-    systemctl enable %{name}.service
+    systemctl enable askuser.service
 fi
 
-systemctl restart %{name}.service
+systemctl restart askuser.service
+systemctl restart cynara.service
 
 %preun
 if [ $1 = 0 ]; then
-    systemctl stop %{name}.service
+    systemctl stop askuser.service
 fi
 
 %postun
@@ -102,15 +109,25 @@ if [ $1 = 0 ]; then
     systemctl daemon-reload
 fi
 
+systemctl restart cynara.service
+
 %post -n libaskuser-common -p /sbin/ldconfig
 
 %postun -n libaskuser-common -p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files
 %manifest %{name}.manifest
 %license LICENSE
-%attr(755,root,root) /usr/bin/%{name}
-/usr/lib/systemd/system/%{name}.service
+%attr(755, root, root) /usr/bin/askuser
+/usr/lib/systemd/system/askuser.service
+
+%files -n askuser-notification
+%manifest askuser-notification.manifest
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-notification
+/usr/lib/systemd/user/askuser-notification.service
+/usr/share/locale/en/LC_MESSAGES/askuser.mo
+/usr/share/locale/pl/LC_MESSAGES/askuser.mo
 
 %files -n libaskuser-common
 %manifest libaskuser-common.manifest
@@ -127,7 +144,5 @@ fi
 %manifest askuser-test.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-test
-
-%files -n askuser-tests
-%license LICENSE
 %attr(755,root,root) /usr/bin/askuser-tests
+

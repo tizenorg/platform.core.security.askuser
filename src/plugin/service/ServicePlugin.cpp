@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014-2015 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  *  limitations under the License
  */
 /**
- * @file        ServicePlugin.cpp
+ * @file        src/plugin/service/ServicePlugin.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of cynara server side AskUser plugin.
  */
 
+#include <iostream>
 #include <string>
 #include <tuple>
-#include <iostream>
 #include <ostream>
+
 #include <cynara-plugin.h>
 
-#include <types/PolicyDescription.h>
+#include <log/alog.h>
 #include <types/SupportedTypes.h>
 #include <translator/Translator.h>
 
@@ -82,7 +84,7 @@ public:
     {
         try {
             if (!m_cache.get(Key(client, user, privilege), result)) {
-                pluginData = Translator::Plugin::requestToData(client, user, privilege);
+                pluginData = requestToData(client, user, privilege);
                 requiredAgent = AgentType(SupportedTypes::Agent::AgentType);
                 return PluginStatus::ANSWER_NOTREADY;
             }
@@ -91,8 +93,6 @@ public:
             else
                 result = PolicyResult(PredefinedPolicyType::DENY);
             return PluginStatus::ANSWER_READY;
-        } catch (const Translator::TranslateErrorException &e) {
-            LOGE("Error translating request to data : " << e.what());
         } catch (const std::exception &e) {
             LOGE("Failed with std exception: " << e.what());
         } catch (...) {
@@ -108,7 +108,7 @@ public:
                         PolicyResult &result) noexcept
     {
         try {
-            PolicyType resultType = Translator::Plugin::dataToAnswer(agentData);
+            PolicyType resultType = dataToAnswer(agentData);
             result = PolicyResult(resultType);
 
             if (resultType == SupportedTypes::Client::ALLOW_PER_LIFE) {
@@ -120,8 +120,6 @@ public:
             }
 
             return PluginStatus::SUCCESS;
-        } catch (const Translator::TranslateErrorException &e) {
-            LOGE("Error translating data to answer : " << e.what());
         } catch (const std::exception &e) {
             LOGE("Failed with std exception: " << e.what());
         } catch (...) {

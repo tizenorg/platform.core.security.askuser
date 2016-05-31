@@ -14,6 +14,7 @@
 #
 # @file        CMakeLists.txt
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
+# @author      Oskar Switalski <o.switalski@samsung.com>
 #
 
 ############################# Check minimum CMake version #####################
@@ -67,10 +68,11 @@ IF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
     ADD_DEFINITIONS("-DBUILD_TYPE_DEBUG")
 ENDIF (CMAKE_BUILD_TYPE MATCHES "DEBUG")
 
-SET(TARGET_ASKUSER "askuser")
+SET(TARGET_ASKUSERD "askuser")
 SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
 SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
+SET(TARGET_ASKUSER_NOTIFICATION "askuser-notification")
 
 SET(TARGET_TEST "askuser-test")
 SET(TARGET_TESTS "askuser-tests")
