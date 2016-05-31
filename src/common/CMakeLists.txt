@@ -38,6 +38,7 @@ INCLUDE_DIRECTORIES(
 SET(COMMON_SOURCES
     ${COMMON_PATH}/log/alog.cpp
     ${COMMON_PATH}/translator/Translator.cpp
+    ${COMMON_PATH}/config/Path.cpp
     )
 
 ADD_DEFINITIONS("-fvisibility=default")
