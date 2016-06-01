@@ -1,21 +1,54 @@
-# Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
-#
-#    Licensed under the Apache License, Version 2.0 (the "License");
-#    you may not use this file except in compliance with the License.
-#    You may obtain a copy of the License at
-#
-#        http://www.apache.org/licenses/LICENSE-2.0
-#
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS,
-#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#    See the License for the specific language governing permissions and
-#    limitations under the License.
-#
-# @file        CMakeLists.txt
-# @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
-#
+SET(TESTS_PATH ${PROJECT_SOURCE_DIR}/test/)
 
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/test/askuser-test.sh DESTINATION ${BIN_INSTALL_DIR})
+FIND_PACKAGE(Threads REQUIRED) # Required by gmock
 
-ADD_SUBDIRECTORY(client)
+PKG_CHECK_MODULES(TESTS_DEP
+    QUIET gmock
+    cynara-client
+    cynara-creds-socket
+    cynara-admin
+    libsystemd-daemon
+)
+
+INCLUDE_DIRECTORIES(
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/common
+    ${PROJECT_SOURCE_DIR}/src/agent
+    ${PROJECT_SOURCE_DIR}/src/agent/main
+    ${gmock_INCLUDE_DIRS}
+)
+
+SET(TESTS_SOURCES
+    ${TESTS_PATH}/main.cpp
+    ${TESTS_PATH}/common/exception.cpp
+    ${TESTS_PATH}/common/translator.cpp
+    ${TESTS_PATH}/daemon/notificationTalker.cpp
+
+    ${PROJECT_SOURCE_DIR}/src/common/config/Path.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/log/alog.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/socket/Socket.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/socket/SelectRead.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/translator/Translator.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/types/AgentErrorMsg.cpp
+    ${PROJECT_SOURCE_DIR}/src/agent/main/NotificationTalker.cpp
+   )
+
+ADD_DEFINITIONS(${TESTS_DEP_CFLAGS})
+
+ADD_EXECUTABLE(${TARGET_TESTS} ${TESTS_SOURCES})
+
+SET_TARGET_PROPERTIES(${TARGET_TESTS} PROPERTIES
+    COMPILE_FLAGS
+    -fpie
+)
+
+TARGET_LINK_LIBRARIES(${TARGET_TESTS}
+    ${TESTS_DEP_LIBRARIES}
+        ${gmock_LDFLAGS}
+        ${gmock_LIBRARIES}
+    -pie
+)
+
+INSTALL(TARGETS ${TARGET_TESTS} DESTINATION ${BIN_INSTALL_DIR})
+
+ADD_SUBDIRECTORY(tools)

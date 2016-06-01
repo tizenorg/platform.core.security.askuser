@@ -52,11 +52,12 @@ Summary:    Askuser cynara plugins
 Askuser plugin library with cynara service and client side plugins
 
 %package -n askuser-test
-BuildRequires: pkgconfig(cynara-client)
-Summary:    Simple tools for testing cynara extensions
+BuildRequires: pkgconfig(cynara-admin)
+BuildRequires: pkgconfig(gmock)
+Summary: Tool for testing askuser packages and unit tests for askuser
 
 %description -n askuser-test
-utility for testing askuser extensions
+Tool for testing askuser packages and unit tests for askuser
 
 %prep
 %setup -q
@@ -145,5 +146,6 @@ systemctl restart cynara.service
 %files -n askuser-test
 %manifest askuser-test.manifest
 %license LICENSE
-%attr(755,root,root) /usr/bin/askuser-test-client
-%attr(755,root,root) /usr/bin/askuser-test.sh
+%attr(755,root,root) /usr/bin/askuser-test
+%attr(755,root,root) /usr/bin/askuser-tests
+
