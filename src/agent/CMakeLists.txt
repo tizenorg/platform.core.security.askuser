@@ -20,6 +20,7 @@ PKG_CHECK_MODULES(AGENT_DEP
     REQUIRED
     cynara-agent
     cynara-plugin
+    cynara-creds-socket
     libsystemd-daemon
     security-privilege-manager
     )
@@ -30,6 +31,7 @@ SET(ASKUSER_SOURCES
     ${ASKUSER_AGENT_PATH}/main/Agent.cpp
     ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
     ${ASKUSER_AGENT_PATH}/main/main.cpp
+    ${ASKUSER_AGENT_PATH}/main/NotificationTalker.cpp
     )
 
 INCLUDE_DIRECTORIES(
@@ -48,4 +50,4 @@ TARGET_LINK_LIBRARIES(${TARGET_ASKUSER}
 
 INSTALL(TARGETS ${TARGET_ASKUSER} DESTINATION ${BIN_INSTALL_DIR})
 
-ADD_SUBDIRECTORY(po)
+ADD_SUBDIRECTORY(notification-daemon)

@@ -9,13 +9,17 @@ Source1001:    %{name}.manifest
 Source1002:    libaskuser-common.manifest
 Source1003:    askuser-plugins.manifest
 Source1004:    askuser-test.manifest
+Source1005:    askuser-notification.manifest
 BuildRequires: cmake
 BuildRequires: libwayland-egl
 BuildRequires: gettext-tools
 BuildRequires: pkgconfig(cynara-agent)
+BuildRequires: pkgconfig(cynara-creds-socket)
 BuildRequires: pkgconfig(cynara-plugin)
+BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
+BuildRequires: pkgconfig(security-manager)
 BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: coregl
 %{?systemd_requires}
@@ -32,6 +36,12 @@ Summary:    Askuser common library
 
 %description -n libaskuser-common
 Askuser common library with common functionalities
+
+%package -n askuser-notification
+Summary: User daemon which shows popup with privilege request
+
+%description -n askuser-notification
+User daemon which shows popup with privilege request
 
 %package -n askuser-plugins
 Requires:   cynara
@@ -54,6 +64,7 @@ cp -a %{SOURCE1001} .
 cp -a %{SOURCE1002} .
 cp -a %{SOURCE1003} .
 cp -a %{SOURCE1004} .
+cp -a %{SOURCE1005} .
 
 %build
 %if 0%{?sec_build_binary_debug_enable}
@@ -77,6 +88,10 @@ rm -rf %{buildroot}
 %find_lang %{name}
 
 %post
+# todo properly use systemd --user
+ln -s /lib/systemd/user/askuser-notification.service \
+/usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
+
 systemctl daemon-reload
 
 if [ $1 = 1 ]; then
@@ -107,6 +122,14 @@ systemctl restart cynara.service
 %license LICENSE
 %attr(755, root, root) /usr/bin/askuser
 /usr/lib/systemd/system/askuser.service
+
+%files -n askuser-notification
+%manifest askuser-notification.manifest
+%license LICENSE
+%attr(755,root,root) /usr/bin/askuser-notification
+/usr/lib/systemd/user/askuser-notification.service
+/usr/share/locale/en/LC_MESSAGES/askuser.mo
+/usr/share/locale/pl/LC_MESSAGES/askuser.mo
 
 %files -n libaskuser-common
 %manifest libaskuser-common.manifest

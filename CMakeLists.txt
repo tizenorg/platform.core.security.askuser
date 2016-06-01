@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015 Samsung Electronics Co., Ltd All Rights Reserved
+# Copyright (c) 2014-2016 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 #
 # @file        CMakeLists.txt
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
+# @author      Oskar Switalski <o.switalski@samsung.com>
 #
 
 ############################# Check minimum CMake version #####################
@@ -72,6 +73,7 @@ SET(TARGET_ASKUSER_COMMON "askuser-common")
 SET(TARGET_PLUGIN_SERVICE "askuser-plugin-service")
 SET(TARGET_PLUGIN_CLIENT "askuser-plugin-client")
 SET(TARGET_CLIENT "askuser-test-client")
+SET(TARGET_ASKUSER_NOTIFICATION "askuser-notification")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(systemd)
