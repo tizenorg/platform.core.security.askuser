@@ -84,6 +84,7 @@ if [ $1 = 1 ]; then
 fi
 
 systemctl restart askuser.service
+systemctl restart cynara.service
 
 %preun
 if [ $1 = 0 ]; then
@@ -94,6 +95,8 @@ fi
 if [ $1 = 0 ]; then
     systemctl daemon-reload
 fi
+
+systemctl restart cynara.service
 
 %post -n libaskuser-common -p /sbin/ldconfig
 
