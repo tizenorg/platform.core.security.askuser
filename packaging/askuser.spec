@@ -31,15 +31,15 @@ Daemon allowing user to grant or deny acces for given application and privilege
 Summary:    Askuser common library
 
 %description -n libaskuser-common
-askuser common library with common functionalities
+Askuser common library with common functionalities
 
 %package -n askuser-plugins
 Requires:   cynara
 Requires:   libcynara-client
-Summary:    Askuser commons library
+Summary:    Askuser cynara plugins
 
 %description -n askuser-plugins
-askuser plugin library with cynara service and client side plugins
+Askuser plugin library with cynara service and client side plugins
 
 %package -n askuser-test
 BuildRequires: pkgconfig(cynara-client)
