@@ -1,0 +1,14 @@
+msgid "SID_PRIVILEGE_REQUEST_DIALOG_TITLE"
+msgstr "Żądanie dostępu"
+
+msgid "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_NEVER"
+msgstr "Nigdy"
+
+msgid "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_DENY"
+msgstr "Odmów"
+
+msgid "SID_PRIVILEGE_REQUEST_DIALOG_BUTTON_ALLOW"
+msgstr "Zawsze"
+
+msgid "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE"
+msgstr "Aplikacja <b>%s</b> zażądała przywileju do <b>%s</b>."
