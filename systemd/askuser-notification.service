@@ -1,0 +1,15 @@
+[Unit]
+Description=Ask user notification
+
+[Service]
+SmackExecLabel=User
+ExecStart=/usr/bin/askuser-notification
+Type=notify
+KillMode=process
+TimeoutStopSec=10
+Restart=always
+NoNewPrivileges=true
+EnvironmentFile=-/run/tizen-system-env
+
+[Install]
+WantedBy=multi-user.target
