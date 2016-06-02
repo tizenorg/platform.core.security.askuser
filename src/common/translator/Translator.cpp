@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 /**
  * @file        Translator.cpp
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Implementation of Translator methods
  */
 
@@ -91,5 +92,58 @@ Cynara::PluginData requestToData(const std::string &client,
 }
 
 } //namespace Plugin
+
+namespace Gui {
+std::string responseToString(NResponseType response)
+{
+    switch (response) {
+    case NResponseType::Allow:
+        return "Allow";
+    case NResponseType::Deny:
+        return "Deny once";
+    case NResponseType::Never:
+        return "Deny";
+    case NResponseType::Error:
+        return "Error";
+    default:
+        return "None";
+    }
+}
+
+NotificationRequest dataToNotificationRequest(const std::string &data) {
+    std::stringstream stream(data);
+    std::size_t strSize;
+    char separator;
+
+    cynara_agent_req_id id;
+    std::string members[2];
+
+    stream >> id;
+    stream.read(&separator, 1);
+
+    for (auto &member : members) {
+        stream >> strSize;
+        std::vector<char> buffer(strSize, '\0');
+        char separator;
+        //Consume separator
+        stream.read(&separator, 1);
+        stream.read(buffer.data(), strSize);
+        //read doesn't append null
+        member.assign(buffer.begin(), buffer.end());
+    }
+
+    return NotificationRequest({id, std::move(members[0]), "", std::move(members[1])});
+}
+
+std::string notificationRequestToData(RequestId id, const std::string &client,
+                                      const std::string &privilege)
+{
+    const char separator = ' ';
+    return std::to_string(id) + separator +
+         std::to_string(client.length()) + separator + client + separator +
+         std::to_string(privilege.length()) + separator + privilege + separator + separator;
+}
+
+} //namespace Gui
 } //namespace Translator
 } //namespace AskUser
