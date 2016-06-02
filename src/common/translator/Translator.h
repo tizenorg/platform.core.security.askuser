@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014 Samsung Electronics Co.
+ *  Copyright (c) 2014-2016 Samsung Electronics Co.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 /**
  * @file        Translator.h
  * @author      Zofia Abramowska <z.abramowska@samsung.com>
+ * @author      Oskar Świtalski <o.switalski@samsung.com>
  * @brief       Definition of Translator methods and TranslateErrorException class
  */
 
 #pragma once
 
+#include <types/NotificationRequest.h>
+#include <types/NotificationResponse.h>
 #include <types/RequestData.h>
 #include <types/SupportedTypes.h>
 #include <cynara-plugin.h>
@@ -53,6 +56,13 @@ namespace Plugin {
                                      const std::string &privilege);
 } // namespace Plugin
 
+namespace Gui {
+
+std::string responseToString(NResponseType response);
+NotificationRequest dataToNotificationRequest(const std::string &data);
+std::string notificationRequestToData(RequestId id, const std::string &client,
+                                      const std::string &privilege);
+} // namespace Gui
 } // namespace Translator
 } // namespace AskUser
 
