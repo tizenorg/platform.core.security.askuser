@@ -31,6 +31,7 @@
 #include <translator/Translator.h>
 #include <types/AgentErrorMsg.h>
 #include <types/SupportedTypes.h>
+#include <ui/NotificationBackend.h>
 
 #include <log/alog.h>
 
@@ -205,7 +206,8 @@ void Agent::processUIResponse(const Response &response) {
 
 bool Agent::startUIForRequest(Request *request) {
     auto data = Translator::Agent::dataToRequest(request->data());
-    AskUIInterfacePtr ui(nullptr);
+
+    AskUIInterfacePtr ui(new NotificationBackend());
 
     auto handler = [&](RequestId requestId, UIResponseType resultType) -> void {
                        UIResponseHandler(requestId, resultType);
