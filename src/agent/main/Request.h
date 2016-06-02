@@ -24,8 +24,9 @@
 #include <cstdlib>
 #include <vector>
 
-#include <cynara-agent.h>
 #include <cynara-plugin.h>
+
+#include <types/RequestId.h>
 
 namespace AskUser {
 
@@ -36,8 +37,6 @@ typedef enum {
     RT_Cancel,
     RT_Close
 } RequestType;
-
-typedef cynara_agent_req_id RequestId;
 
 class Request {
 public:
