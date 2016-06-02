@@ -19,15 +19,16 @@
  * @brief       Declaration of NotificationTalker class
  */
 
-#ifndef __NOTIFICATION_TALKER__
-#define __NOTIFICATION_TALKER__
+#pragma once
 
+#include <cerrno>
 #include <deque>
 #include <functional>
 #include <map>
 #include <mutex>
 #include <string>
 #include <sys/socket.h>
+#include <thread>
 
 #include <types/RequestId.h>
 #include <types/NotificationResponse.h>
@@ -52,15 +53,34 @@ class NotificationTalker
 {
 public:
     NotificationTalker();
-
+    bool isInitialized() { return m_initialized; }
+    std::string getInitErrorMsg() { return m_initErrorMsg; }
+    void setResponseHandler(ResponseHandler responseHandler)
+    {
+        m_responseHandler = responseHandler;
+    }
     void parseRequest(RequestType type, NotificationRequest request);
-    void run();
-    void setResponseHandler(ResponseHandler responseHandler);
     virtual void stop();
 
-    ~NotificationTalker();
+    virtual ~NotificationTalker();
 
 protected:
+    void setErrnoMsg(const std::string &s, int err = errno);
+    void setErrorMsg(std::string s);
+    void run();
+    void parseResponse(NotificationResponse response, int fd);
+    void recvResponses();
+
+    void newConnection();
+    void remove(int fd);
+
+    void clear();
+
+    virtual void addRequest(NotificationRequest &&request);
+    virtual void removeRequest(RequestId id);
+    virtual void sendRequest(int fd, const NotificationRequest &request);
+    virtual void sendDismiss(int fd);
+
     ResponseHandler m_responseHandler;
 
     UserToFdMap m_userToFd;
@@ -68,27 +88,16 @@ protected:
     FdStatus m_fdStatus;
     fd_set m_fdSet;
     int m_sockfd;
+    bool m_initialized;
+    std::string m_initErrorMsg;
 
     RequestsQueue m_requests;
-    std::mutex m_mutex;
+    std::mutex m_bfLock;
 
+    std::thread m_thread;
     bool m_stopflag;
-
-    void parseResponse(NotificationResponse response, int fd);
-    void recvResponses();
-
-    void newConnection();
-    void remove(int fd);
-
-    virtual void addRequest(NotificationRequest &&request);
-    virtual void removeRequest(RequestId id);
-    virtual void sendRequest(int fd, const NotificationRequest &request);
-    virtual void sendDismiss(int fd);
 };
 
 } /* namespace Agent */
 
 } /* namespace AskUser */
-
-#endif /* __NOTIFICATION_TALKER__ */
-

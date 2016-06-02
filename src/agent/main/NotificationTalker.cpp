@@ -40,31 +40,60 @@ namespace Agent {
 
 NotificationTalker::NotificationTalker()
 {
-  int ret, len;
-  sockaddr_un local;
+    m_stopflag = false;
+    m_initialized = false;
+    try {
+        int ret, len;
+        sockaddr_un local;
 
-  m_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (m_sockfd == -1)
-    throw ErrnoException("Creating socket error");
+        m_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (m_sockfd == -1) {
+            setErrnoMsg("socket creation failed");
+            return;
+        }
 
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, Path::getSocketPath().c_str());
-  unlink(Path::getSocketPath().c_str());
-  len = strlen(local.sun_path) + sizeof(local.sun_family);
+        local.sun_family = AF_UNIX;
+        strcpy(local.sun_path, Path::getSocketPath().c_str());
+        unlink(Path::getSocketPath().c_str());
+        len = strlen(local.sun_path) + sizeof(local.sun_family);
 
-  ret = bind(m_sockfd, (struct sockaddr *)&local, len);
-  if (ret == -1)
-    throw ErrnoException("Binding socket error");
+        ret = bind(m_sockfd, (struct sockaddr *)&local, len);
+        if (ret == -1) {
+            setErrnoMsg("binding to " + Path::getSocketPath() + " failed");
+            return;
+        }
 
-  ret = listen(m_sockfd, 10);
-  if (ret == -1)
-    throw ErrnoException("Listening socket error");
+        ret = listen(m_sockfd, 10);
+        if (ret == -1) {
+            setErrnoMsg("listen failed");
+            return;
+        }
+        m_thread = std::thread(&NotificationTalker::run, this);
+        m_initialized = true;
+    } catch (const std::exception &e) {
+        setErrorMsg(std::string("caught std::exception: ") + e.what());
+    } catch (...) {
+        setErrorMsg("caught unknown exception");
+    }
+}
 
-  m_stopflag = false;
+void NotificationTalker::setErrnoMsg(const std::string &s, int err)
+{
+    m_initErrorMsg = s + " : "  + strerror(err);
+}
+
+void NotificationTalker::setErrorMsg(std::string s)
+{
+    m_initErrorMsg = std::move(s);
 }
 
 void NotificationTalker::parseRequest(RequestType type, NotificationRequest request)
 {
+    if (!m_responseHandler) {
+        ALOGE("Response handler not set!");
+        return;
+    }
+
     switch (type) {
     case RequestType::RT_Close:
         ALOGD("Close service");
@@ -85,7 +114,6 @@ void NotificationTalker::parseRequest(RequestType type, NotificationRequest requ
 
 void NotificationTalker::addRequest(NotificationRequest &&request)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
 
     auto &queue = m_requests[request.data.user];
     auto it = std::find_if(queue.begin(), queue.end(),
@@ -101,8 +129,6 @@ void NotificationTalker::addRequest(NotificationRequest &&request)
 
 void NotificationTalker::removeRequest(RequestId id)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     for (auto &pair : m_requests) {
         auto &queue = std::get<1>(pair);
         auto it = std::find_if(queue.begin(), queue.end(),
@@ -123,15 +149,13 @@ void NotificationTalker::removeRequest(RequestId id)
     }
 }
 
-void NotificationTalker::setResponseHandler(ResponseHandler responseHandler)
-{
-    m_responseHandler = responseHandler;
-}
-
 void NotificationTalker::stop()
 {
     m_stopflag = true;
+}
 
+void NotificationTalker::clear()
+{
     for (auto& pair : m_fdStatus) {
         int fd = std::get<0>(pair);
         close(fd);
@@ -147,14 +171,8 @@ void NotificationTalker::stop()
 
 NotificationTalker::~NotificationTalker()
 {
-    for (auto& pair : m_fdStatus) {
-        int fd = std::get<0>(pair);
-        if (fd)
-            close(fd);
-    }
-
-    if (m_sockfd)
-        close(m_sockfd);
+    stop();
+    m_thread.join();
 }
 
 void NotificationTalker::sendRequest(int fd, const NotificationRequest &request)
@@ -219,10 +237,9 @@ void NotificationTalker::recvResponses()
 
         if (FD_ISSET(fd, &m_fdSet)) {
             NotificationResponse response;
-
             int len = recv(fd, &response, sizeof(response), 0);
             if (len < 0) {
-                throw ErrnoException("Error reciving data from socket");
+                throw ErrnoException("Error receiving data from socket");
             } else if (len) {
                 parseResponse(response, fd);
             } else {
@@ -276,7 +293,7 @@ void NotificationTalker::run()
 {
     ALOGD("Notification loop started");
     while (!m_stopflag) {
-
+        std::lock_guard<std::mutex> lock(m_bfLock);
         timeval timeout;
         timeout.tv_sec = 0;
         timeout.tv_usec = 1000*100;
@@ -294,31 +311,27 @@ void NotificationTalker::run()
 
         int rv = select(nfds + 1, &m_fdSet, nullptr, nullptr, &timeout);
 
-        if (m_stopflag)
+        if (m_stopflag) {
+            clear();
             break;
+        }
 
         if (rv < 0) {
             throw ErrnoException("error on select");
         } else if (rv) {
             recvResponses();
             newConnection();
-        } else {
-            // timeout
         }
 
-        /* lock_guard */
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            for (auto pair : m_fdStatus ) {
-                int fd = std::get<0>(pair);
-                bool b = std::get<1>(pair);
-                auto &queue = m_requests[m_fdToUser[fd]];
-                if (b && !queue.empty()) {
-                    NotificationRequest request = queue.front();
-                    sendRequest(fd, request);
-                }
+        for (auto pair : m_fdStatus ) {
+            int fd = std::get<0>(pair);
+            bool b = std::get<1>(pair);
+            auto &queue = m_requests[m_fdToUser[fd]];
+            if (b && !queue.empty()) {
+                NotificationRequest request = queue.front();
+                sendRequest(fd, request);
             }
-        } /* lock_guard */
+        }
     }
 
     ALOGD("NotificationTalker loop ended");
