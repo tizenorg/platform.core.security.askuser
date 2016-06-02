@@ -9,16 +9,15 @@ Source1001:    %{name}.manifest
 Source1002:    libaskuser-common.manifest
 Source1003:    askuser-plugins.manifest
 Source1004:    askuser-test.manifest
-BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: cmake
 BuildRequires: libwayland-egl
 BuildRequires: gettext-tools
-BuildRequires: pkgconfig(capi-base-common)
 BuildRequires: pkgconfig(cynara-agent)
 BuildRequires: pkgconfig(cynara-plugin)
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd-journal)
-BuildRequires: zip
+BuildRequires: pkgconfig(security-privilege-manager)
+BuildRequires: coregl
 %{?systemd_requires}
 
 %if !%{defined build_type}
