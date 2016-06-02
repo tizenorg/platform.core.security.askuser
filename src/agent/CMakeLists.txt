@@ -32,6 +32,7 @@ SET(ASKUSER_SOURCES
     ${ASKUSER_AGENT_PATH}/main/CynaraTalker.cpp
     ${ASKUSER_AGENT_PATH}/main/main.cpp
     ${ASKUSER_AGENT_PATH}/main/NotificationTalker.cpp
+    ${ASKUSER_AGENT_PATH}/ui/NotificationBackend.cpp
     )
 
 INCLUDE_DIRECTORIES(

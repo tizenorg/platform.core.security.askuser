@@ -37,15 +37,36 @@ namespace AskUser {
 
 namespace Agent {
 
-NotificationTalker::NotificationTalker()
+NotificationTalker::NotificationTalker() : m_failed(true), m_stopflag(false)
 {
-    m_stopflag = false;
     m_select.setTimeout(100);
-    m_sockfd = Socket::listen(Path::getSocketPath().c_str());
+    try {
+        m_sockfd = Socket::listen(Path::getSocketPath());
+        m_thread = std::thread(&NotificationTalker::run, this);
+        m_failed = false;
+    } catch (const Exception &e) {
+        setErrorMsg(e.what());
+    } catch (const std::exception &e) {
+        setErrorMsg(std::string("caught std::exception: ") + e.what());
+    } catch (...) {
+        setErrorMsg("caught unknown exception");
+    }
+}
+
+void NotificationTalker::setErrorMsg(std::string s)
+{
+    m_errorMsg = std::move(s);
 }
 
 void NotificationTalker::parseRequest(RequestType type, NotificationRequest request)
 {
+    std::lock_guard<std::mutex> lock(m_bfLock);
+
+    if (!m_responseHandler) {
+        ALOGE("Response handler not set!");
+        return;
+    }
+
     switch (type) {
     case RequestType::RT_Close:
         ALOGD("Close service");
@@ -66,8 +87,6 @@ void NotificationTalker::parseRequest(RequestType type, NotificationRequest requ
 
 void NotificationTalker::addRequest(NotificationRequest &&request)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     auto &queue = m_requests[request.data.user];
     auto it = std::find_if(queue.begin(), queue.end(),
             [&request](const NotificationRequest &req){return req.id == request.id;}
@@ -82,8 +101,6 @@ void NotificationTalker::addRequest(NotificationRequest &&request)
 
 void NotificationTalker::removeRequest(RequestId id)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     for (auto &pair : m_requests) {
         auto &queue = std::get<1>(pair);
         auto it = std::find_if(queue.begin(), queue.end(),
@@ -104,15 +121,13 @@ void NotificationTalker::removeRequest(RequestId id)
     }
 }
 
-void NotificationTalker::setResponseHandler(ResponseHandler responseHandler)
-{
-    m_responseHandler = responseHandler;
-}
-
 void NotificationTalker::stop()
 {
     m_stopflag = true;
+}
 
+void NotificationTalker::clear()
+{
     for (auto& pair : m_fdStatus) {
         int fd = std::get<0>(pair);
         Socket::close(fd);
@@ -128,12 +143,9 @@ void NotificationTalker::stop()
 
 NotificationTalker::~NotificationTalker()
 {
-    for (auto& pair : m_fdStatus) {
-        int fd = std::get<0>(pair);
-        Socket::close(fd);
-    }
-
-    Socket::close(m_sockfd);
+    stop();
+    clear();
+    m_thread.join();
 }
 
 void NotificationTalker::sendRequest(int fd, const NotificationRequest &request)
@@ -265,6 +277,8 @@ void NotificationTalker::run()
     try {
         ALOGD("Notification loop started");
         while (!m_stopflag) {
+            std::lock_guard<std::mutex> lock(m_bfLock);
+
             m_select.add(m_sockfd);
 
             for (auto pair : m_userToFd)
@@ -272,35 +286,41 @@ void NotificationTalker::run()
 
             int rv = m_select.exec();
 
-            if (m_stopflag)
+            if (m_stopflag) {
+                clear();
                 break;
+            }
 
             if (rv) {
                 newConnection(rv);
                 recvResponses(rv);
-            } else {
-                // timeout
             }
 
-            /* lock_guard */
-            {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                for (auto pair : m_fdStatus ) {
-                    int fd = std::get<0>(pair);
-                    bool b = std::get<1>(pair);
-                    auto &queue = m_requests[m_fdToUser[fd]];
-                    if (b && !queue.empty()) {
-                        NotificationRequest request = queue.front();
-                        sendRequest(fd, request);
-                    }
+            for (auto pair : m_fdStatus ) {
+                int fd = std::get<0>(pair);
+                bool b = std::get<1>(pair);
+                auto &queue = m_requests[m_fdToUser[fd]];
+                if (b && !queue.empty()) {
+                    NotificationRequest request = queue.front();
+                    sendRequest(fd, request);
                 }
-            } /* lock_guard */
+            }
         }
         ALOGD("NotificationTalker loop ended");
     } catch (const std::exception &e) {
-        ALOGE("NotificationTalker: " << e.what());
+        setErrorMsg(e.what());
+        m_failed = true;
     } catch (...) {
-        ALOGE("NotificationTalker: unknown error");
+        setErrorMsg("unknown error");
+        m_failed = true;
+    }
+
+    if (m_failed && m_responseHandler) {
+        for (auto &queuePair : m_requests) {
+            for (auto &request : std::get<1>(queuePair)) {
+                m_responseHandler({request.id, NResponseType::Error});
+            }
+        }
     }
 }
 
