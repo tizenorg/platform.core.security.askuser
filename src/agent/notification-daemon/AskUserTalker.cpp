@@ -23,10 +23,9 @@
 
 #include <iostream>
 #include <string>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
 
+#include <socket/Socket.h>
+#include <socket/SelectRead.h>
 #include <types/NotificationResponse.h>
 #include <types/Protocol.h>
 #include <types/NotificationRequest.h>
@@ -106,47 +105,26 @@ AskUserTalker::AskUserTalker(GuiRunner *gui) : m_gui(gui) {
 
 AskUserTalker::~AskUserTalker()
 {
-    close(sockfd);
+    Socket::close(sockfd);
 }
 
 void AskUserTalker::run()
 {
-    int ret;
-    struct sockaddr_un remote;
-
-    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sockfd == -1)
-        throw ErrnoException("Creating socket failed");
-
-    remote.sun_family = AF_UNIX;
-    strcpy(remote.sun_path, Path::getSocketPath().c_str());
-
-    int len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-
-    ret = connect(sockfd, (struct sockaddr *)&remote, len);
-    if (ret == -1)
-        throw ErrnoException("Connecting to socket failed");
+    sockfd = Socket::connect(Path::getSocketPath());
 
     while (!stopFlag) {
         size_t size;
-        int len;
         char *buf;
         NotificationResponse response;
 
-        len = recv(sockfd, &size, sizeof(size), 0);
-        if (len < 0) {
-            throw ErrnoException("Recieving data from socket error");
-        } else if (len == 0) {
+        if (!Socket::recv(sockfd, &size, sizeof(size))) {
               ALOGI("Askuserd closed connection, closing...");
               break;
         }
 
         buf = new char[size];
 
-        len = recv(sockfd, buf, size, 0);
-        if (len < 0) {
-            throw ErrnoException("Recieving data from socket error");
-        } else if (len == 0) {
+        if (!Socket::recv(sockfd, buf, size)) {
               ALOGI("Askuserd closed connection, closing...");
               break;
         }
@@ -161,12 +139,10 @@ void AskUserTalker::run()
         if (response.response == NResponseType::None)
             continue;
 
-        len = send(sockfd, &response, sizeof(response), 0);
-        if (len < 0)
-            throw ErrnoException("Sending data to socket error");
+        Socket::send(sockfd, &response, sizeof(response));
 
         uint8_t ack = 0x00;
-        len = recv(sockfd, &ack, sizeof(ack), 0);
+        Socket::recv(sockfd, &ack, sizeof(ack));
 
         if (ack != Protocol::ackCode)
             throw Exception("Incorrect ack");
@@ -184,24 +160,18 @@ void AskUserTalker::run()
 void AskUserTalker::stop()
 {
       m_gui->stop();
-      close(sockfd);
+      Socket::close(sockfd);
 }
 
 bool AskUserTalker::shouldDismiss()
 {
-      struct timeval time;
-      time.tv_usec = 0;
-      time.tv_sec = 0;
-      fd_set set;
-      FD_ZERO(&set);
-      FD_SET(sockfd, &set);
-
-      int ret = select(sockfd + 1, &set, nullptr, nullptr, &time);
-      if (ret == 0)
-          return false;
+      Socket::SelectRead select;
+      select.add(sockfd);
+      if (select.exec() == 0)
+        return false;
 
       uint8_t a = 0x00;
-      recv(sockfd, &a, sizeof(a), 0);
+      Socket::recv(sockfd, &a, sizeof(a));
 
       if (a != Protocol::dissmisCode)
           throw Exception("Incorrect dismiss flag");

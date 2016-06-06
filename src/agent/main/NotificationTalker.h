@@ -27,9 +27,9 @@
 #include <map>
 #include <mutex>
 #include <string>
-#include <sys/socket.h>
 #include <thread>
 
+#include <socket/SelectRead.h>
 #include <types/RequestId.h>
 #include <types/NotificationResponse.h>
 #include <types/NotificationRequest.h>
@@ -86,8 +86,8 @@ protected:
     UserToFdMap m_userToFd;
     FdToUserMap m_fdToUser;
     FdStatus m_fdStatus;
-    fd_set m_fdSet;
-    int m_sockfd;
+    Socket::SelectRead m_select;
+    int m_sockfd = 0;
     bool m_initialized;
     std::string m_initErrorMsg;
 

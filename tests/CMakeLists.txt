@@ -26,6 +26,8 @@ SET(TESTS_SOURCES
 
     ${PROJECT_SOURCE_DIR}/src/common/config/Path.cpp
     ${PROJECT_SOURCE_DIR}/src/common/log/alog.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/socket/Socket.cpp
+    ${PROJECT_SOURCE_DIR}/src/common/socket/SelectRead.cpp
     ${PROJECT_SOURCE_DIR}/src/common/translator/Translator.cpp
     ${PROJECT_SOURCE_DIR}/src/common/types/AgentErrorMsg.cpp
     ${PROJECT_SOURCE_DIR}/src/agent/main/NotificationTalker.cpp

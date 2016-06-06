@@ -24,12 +24,10 @@
 #include <algorithm>
 #include <cstring>
 #include <cynara-creds-socket.h>
-#include <sys/stat.h>
-#include <sys/un.h>
-#include <unistd.h>
 
 #include <exception/ErrnoException.h>
 #include <log/alog.h>
+#include <socket/Socket.h>
 #include <translator/Translator.h>
 #include <config/Path.h>
 #include <types/Protocol.h>
@@ -42,31 +40,12 @@ NotificationTalker::NotificationTalker()
 {
     m_stopflag = false;
     m_initialized = false;
+    m_select.setTimeout(100);
     try {
-        int ret, len;
-        sockaddr_un local;
-
-        m_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (m_sockfd == -1) {
-            setErrnoMsg("socket creation failed");
-            return;
-        }
-
-        local.sun_family = AF_UNIX;
-        strcpy(local.sun_path, Path::getSocketPath().c_str());
-        unlink(Path::getSocketPath().c_str());
-        len = strlen(local.sun_path) + sizeof(local.sun_family);
-
-        ret = bind(m_sockfd, (struct sockaddr *)&local, len);
-        if (ret == -1) {
-            setErrnoMsg("binding to " + Path::getSocketPath() + " failed");
-            return;
-        }
-
-        ret = listen(m_sockfd, 10);
-        if (ret == -1) {
-            setErrnoMsg("listen failed");
-            return;
+        try {
+        m_sockfd = Socket::listen(Path::getSocketPath());
+        } catch (const Exception &e) {
+          setErrorMsg(e.what());
         }
         m_thread = std::thread(&NotificationTalker::run, this);
         m_initialized = true;
@@ -158,20 +137,21 @@ void NotificationTalker::clear()
 {
     for (auto& pair : m_fdStatus) {
         int fd = std::get<0>(pair);
-        close(fd);
+        Socket::close(fd);
     }
 
     m_fdStatus.clear();
     m_fdToUser.clear();
     m_userToFd.clear();
 
-    close(m_sockfd);
+    Socket::close(m_sockfd);
     m_sockfd = 0;
 }
 
 NotificationTalker::~NotificationTalker()
 {
     stop();
+    clear();
     m_thread.join();
 }
 
@@ -184,19 +164,14 @@ void NotificationTalker::sendRequest(int fd, const NotificationRequest &request)
                                                                   request.data.privilege);
     auto size = data.size();
 
-    int len = send(fd, &size, sizeof(size), 0);
-    if (len <= 0)
-        throw ErrnoException("Error sending data to socket");
-
-    len = send(fd, data.c_str(), size, 0);
-    if (len <= 0)
-        throw ErrnoException("Error sending data to socket");
+    Socket::send(fd, &size, sizeof(size));
+    Socket::send(fd, data.c_str(), size);
 }
 
 void NotificationTalker::sendDismiss(int fd)
 {
     if (!m_fdStatus[fd]) {
-        send(fd, &Protocol::dissmisCode, sizeof(Protocol::dissmisCode), 0);
+        Socket::send(fd, &Protocol::dissmisCode, sizeof(Protocol::dissmisCode));
         m_fdStatus[fd] = true;
     }
 }
@@ -225,7 +200,7 @@ void NotificationTalker::parseResponse(NotificationResponse response, int fd)
 
     m_responseHandler(response);
 
-    send(fd, &Protocol::ackCode, sizeof(Protocol::ackCode), 0);
+    Socket::send(fd, &Protocol::ackCode, sizeof(Protocol::ackCode));
 
     m_fdStatus[fd] = true;
 }
@@ -235,12 +210,9 @@ void NotificationTalker::recvResponses()
     for (auto pair : m_userToFd) {
         int fd = std::get<1>(pair);
 
-        if (FD_ISSET(fd, &m_fdSet)) {
+        if (m_select.isSet(fd)) {
             NotificationResponse response;
-            int len = recv(fd, &response, sizeof(response), 0);
-            if (len < 0) {
-                throw ErrnoException("Error receiving data from socket");
-            } else if (len) {
+            if (Socket::recv(fd, &response, sizeof(response))) {
                 parseResponse(response, fd);
             } else {
                 remove(fd);
@@ -251,14 +223,8 @@ void NotificationTalker::recvResponses()
 
 void NotificationTalker::newConnection()
 {
-    if (FD_ISSET(m_sockfd, &m_fdSet)) {
-        int fd;
-        sockaddr_un remote;
-        socklen_t t = sizeof(remote);
-
-        fd = accept(m_sockfd, (sockaddr*)&remote, &t);
-        if (fd < 0)
-            throw ErrnoException("Accepting socket error");
+    if (m_select.isSet(m_sockfd)) {
+        int fd = Socket::accept(m_sockfd);
 
         char *user_c = nullptr;
 
@@ -281,8 +247,7 @@ void NotificationTalker::newConnection()
 
 void NotificationTalker::remove(int fd)
 {
-    ALOGE("Close socket " << fd);
-    close(fd);
+    Socket::close(fd);
     auto user = m_fdToUser[fd];
     m_fdToUser.erase(fd);
     m_userToFd.erase(user);
@@ -294,31 +259,20 @@ void NotificationTalker::run()
     ALOGD("Notification loop started");
     while (!m_stopflag) {
         std::lock_guard<std::mutex> lock(m_bfLock);
-        timeval timeout;
-        timeout.tv_sec = 0;
-        timeout.tv_usec = 1000*100;
 
-        int nfds = m_sockfd;
+        m_select.add(m_sockfd);
 
-        FD_ZERO(&m_fdSet);
-        FD_SET(m_sockfd, &m_fdSet);
+        for (auto pair : m_userToFd)
+            m_select.add(std::get<1>(pair));
 
-        for (auto pair : m_userToFd) {
-            int fd = std::get<1>(pair);
-            FD_SET(fd ,&m_fdSet);
-            nfds = fd > nfds ? fd : nfds;
-        }
-
-        int rv = select(nfds + 1, &m_fdSet, nullptr, nullptr, &timeout);
+        int rv = m_select.exec();
 
         if (m_stopflag) {
             clear();
             break;
         }
 
-        if (rv < 0) {
-            throw ErrnoException("error on select");
-        } else if (rv) {
+        if (rv) {
             recvResponses();
             newConnection();
         }

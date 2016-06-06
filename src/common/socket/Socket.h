@@ -14,46 +14,27 @@
  *  limitations under the License
  */
 /**
- * @file        src/notification-daemon/GuiRunner.h
+ * @file        Socket.cpp
  * @author      Oskar Świtalski <o.switalski@samsung.com>
- * @brief       Declaration of AskUserTalker class
+ * @brief       Declaration of Socket methods
  */
 
-#ifndef __ASKUSER_TALKER__
-#define __ASKUSER_TALKER__
+#pragma once
 
-#include <functional>
-#include <queue>
-#include <memory>
-#include <mutex>
-
-#include "GuiRunner.h"
+#include <cstddef>
+#include <string>
 
 namespace AskUser {
 
-namespace Notification {
+namespace Socket {
 
-class AskUserTalker
-{
-public:
-      AskUserTalker(GuiRunner *gui);
-      ~AskUserTalker();
+int accept(int fd);
+void close(int fd);
+int connect(std::string path);
+int listen(std::string path);
+bool recv(int fd, void *buf, size_t size, int flags = 0);
+void send(int fd, const void *buf, size_t size, int flags = 0);
 
-      void run();
-      void stop();
-
-      bool shouldDismiss();
-
-private:
-      GuiRunner *m_gui;
-      int sockfd = 0;
-      bool stopFlag = false;
-};
-
-typedef std::unique_ptr<AskUserTalker> AskUserTalkerPtr;
-
-} /* namespace Notification */
+} /* namespace Socket */
 
 } /* namespace AskUser */
-
-#endif /* __ASKUSER_TALKER__ */

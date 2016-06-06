@@ -14,46 +14,36 @@
  *  limitations under the License
  */
 /**
- * @file        src/notification-daemon/GuiRunner.h
+ * @file        SelectRead.h
  * @author      Oskar Świtalski <o.switalski@samsung.com>
- * @brief       Declaration of AskUserTalker class
+ * @brief       Declaration of SelectRead class
  */
 
-#ifndef __ASKUSER_TALKER__
-#define __ASKUSER_TALKER__
+#pragma once
 
-#include <functional>
-#include <queue>
-#include <memory>
-#include <mutex>
-
-#include "GuiRunner.h"
+#include <sys/select.h>
 
 namespace AskUser {
 
-namespace Notification {
+namespace Socket {
 
-class AskUserTalker
-{
+class SelectRead {
 public:
-      AskUserTalker(GuiRunner *gui);
-      ~AskUserTalker();
+  SelectRead();
 
-      void run();
-      void stop();
-
-      bool shouldDismiss();
-
+  void add(int fd);
+  int exec();
+  bool isSet(int fd);
+  void setTimeout(int ms);
 private:
-      GuiRunner *m_gui;
-      int sockfd = 0;
-      bool stopFlag = false;
+  bool m_exec;
+
+  fd_set m_set;
+  int m_nfds;
+
+  timeval m_timeout;
 };
 
-typedef std::unique_ptr<AskUserTalker> AskUserTalkerPtr;
-
-} /* namespace Notification */
+} /* namespace Socket */
 
 } /* namespace AskUser */
-
-#endif /* __ASKUSER_TALKER__ */
