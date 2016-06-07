@@ -37,6 +37,8 @@ INCLUDE_DIRECTORIES(
 
 SET(COMMON_SOURCES
     ${COMMON_PATH}/log/alog.cpp
+    ${COMMON_PATH}/socket/Socket.cpp
+    ${COMMON_PATH}/socket/SelectRead.cpp
     ${COMMON_PATH}/translator/Translator.cpp
     ${COMMON_PATH}/types/AgentErrorMsg.cpp
     ${COMMON_PATH}/util/SafeFunction.cpp
