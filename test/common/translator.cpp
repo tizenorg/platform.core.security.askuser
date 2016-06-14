@@ -48,7 +48,7 @@ TEST(TranslatorTest, NotificationRequest) {
     std::string privilege = "http://example.com/permissions/example";
 
     auto data = Translator::Gui::notificationRequestToData(id, app, privilege);
-    auto request = Translator::Gui::dataToNotificationRequest(strdup(data.c_str()));
+    auto request = Translator::Gui::dataToNotificationRequest(data);
 
     ASSERT_EQ(id, request.id);
     ASSERT_EQ(app, request.data.client);
