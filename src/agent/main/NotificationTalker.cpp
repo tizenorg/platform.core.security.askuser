@@ -39,7 +39,6 @@ namespace Agent {
 
 NotificationTalker::NotificationTalker() : m_failed(true), m_stopflag(false)
 {
-    m_select.setTimeout(100);
     try {
         m_sockfd = Socket::listen(Path::getSocketPath());
         m_thread = std::thread(&NotificationTalker::run, this);
@@ -284,6 +283,7 @@ void NotificationTalker::run()
             for (auto pair : m_userToFd)
                 m_select.add(std::get<1>(pair));
 
+            m_select.setTimeout(100);
             int rv = m_select.exec();
 
             if (m_stopflag) {
