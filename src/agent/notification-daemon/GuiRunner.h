@@ -47,6 +47,7 @@ struct drop {
 class GuiRunner {
 public:
     GuiRunner();
+    ~GuiRunner();
 
     NResponseType popupRun(const std::string &app, const std::string &perm);
 

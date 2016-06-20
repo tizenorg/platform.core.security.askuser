@@ -33,6 +33,7 @@
 #include <exception/Exception.h>
 #include <translator/Translator.h>
 #include <config/Path.h>
+#include <config/Limits.h>
 
 #include <security-manager.h>
 
@@ -132,6 +133,8 @@ void AskUserTalker::run()
             ALOGI("Askuserd closed connection, closing...");
             break;
         }
+
+        Limits::checkSizeLimit(size);
 
         buf = new char[size];
 
