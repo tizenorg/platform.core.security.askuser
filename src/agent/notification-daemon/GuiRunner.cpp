@@ -113,6 +113,11 @@ GuiRunner::GuiRunner()
     m_popupData = new PopupData({NResponseType::Deny, nullptr});
 }
 
+GuiRunner::~GuiRunner()
+{
+    delete m_popupData;
+}
+
 void GuiRunner::initialize()
 {
     elm_init(0, NULL);
