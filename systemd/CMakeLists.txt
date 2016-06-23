@@ -16,14 +16,14 @@
 # @author      Adam Malinowski <a.malinowsk2@partner.samsung.com>
 #
 
-INSTALL(FILES
-    ${CMAKE_SOURCE_DIR}/systemd/${PROJECT_NAME}.service
-    DESTINATION
-    lib/systemd/system
-)
+#INSTALL(FILES
+#    ${CMAKE_SOURCE_DIR}/systemd/${PROJECT_NAME}.service
+#    DESTINATION
+#    lib/systemd/system
+#)
 
-INSTALL(FILES
-    ${CMAKE_SOURCE_DIR}/systemd/askuser-notification.service
-    DESTINATION
-    lib/systemd/user
-)
+#INSTALL(FILES
+#    ${CMAKE_SOURCE_DIR}/systemd/askuser-notification.service
+#    DESTINATION
+#    lib/systemd/user
+#)
