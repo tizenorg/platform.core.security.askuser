@@ -120,7 +120,7 @@ bool recv(int fd, void *buf, size_t size, int flags) {
     size_t bytesRead = 0;
 
     while (bytesRead < size) {
-        result = TEMP_FAILURE_RETRY(::recv(fd, buf, size, flags));
+        result = TEMP_FAILURE_RETRY(::recv(fd, (char*)buf + bytesRead, size - bytesRead, flags));
 
         if (result < 0 && errno != ECONNRESET)
             throw ErrnoException("Error receiving data from socket");
@@ -141,7 +141,8 @@ bool send(int fd, const void *buf, size_t size, int flags) {
 
     while (bytesSend < size) {
 
-        result = TEMP_FAILURE_RETRY(::send(fd, buf, size, flags | MSG_NOSIGNAL));
+        result = TEMP_FAILURE_RETRY(::send(fd, (char*)buf + bytesSend, size - bytesSend,
+                                           flags | MSG_NOSIGNAL));
 
         if (result < 0) {
             if (errno == EPIPE)
