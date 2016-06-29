@@ -32,6 +32,7 @@ SelectRead::SelectRead() : m_exec(true), m_timeout({0, 0}) {}
 void SelectRead::add(int fd) {
     if (m_exec) {
         FD_ZERO(&m_set);
+        m_nfds = -1;
         m_exec = false;
     }
 
