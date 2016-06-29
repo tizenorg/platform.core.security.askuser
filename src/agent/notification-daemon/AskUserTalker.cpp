@@ -124,7 +124,6 @@ void AskUserTalker::run()
 
     while (!stopFlag) {
         size_t size;
-        char *buf;
         NotificationResponse response;
 
         ALOGD("Waiting for request...");
@@ -136,15 +135,14 @@ void AskUserTalker::run()
 
         Limits::checkSizeLimit(size);
 
-        buf = new char[size];
+        std::unique_ptr<char[]> buf(new char[size]);
 
-        if (!Socket::recv(sockfd, buf, size)) {
+        if (!Socket::recv(sockfd, buf.get(), size)) {
             ALOGI("Askuserd closed connection, closing...");
             break;
         }
 
-        NotificationRequest request = Translator::Gui::dataToNotificationRequest(buf);
-        delete[] buf;
+        NotificationRequest request = Translator::Gui::dataToNotificationRequest(buf.get());
         ALOGD("Recieved data " << request.data.client << " " << request.data.privilege);
 
         response.response = m_gui->popupRun(request.data.client, request.data.privilege);

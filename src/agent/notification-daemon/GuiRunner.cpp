@@ -188,8 +188,8 @@ NResponseType GuiRunner::popupRun(const std::string &app, const std::string &per
             initialize();
 
         m_running = true;
-        drop *Drop = new drop({m_dropHandler, m_popupData});
-        m_timer = ecore_timer_add(0.1, timeout_answer, Drop);
+        std::unique_ptr<drop> Drop(new drop({m_dropHandler, m_popupData}));
+        m_timer = ecore_timer_add(0.1, timeout_answer, Drop.get());
 
         // create message
         char *messageFormat = dgettext(PROJECT_NAME, "SID_PRIVILEGE_REQUEST_DIALOG_MESSAGE");
