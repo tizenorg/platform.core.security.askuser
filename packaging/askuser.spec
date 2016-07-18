@@ -90,22 +90,22 @@ rm -rf %{buildroot}
 
 %post
 # todo properly use systemd --user
-#ln -s /lib/systemd/user/askuser-notification.service \
-#/usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
+ln -s /lib/systemd/user/askuser-notification.service \
+/usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
 
 systemctl daemon-reload
 
-#if [ $1 = 1 ]; then
-#    systemctl enable askuser.service
-#fi
+if [ $1 = 1 ]; then
+    systemctl enable askuser.service
+fi
 
-#systemctl restart askuser.service
-#systemctl restart cynara.service
+systemctl restart askuser.service
+systemctl restart cynara.service
 
 %preun
-#if [ $1 = 0 ]; then
-#    systemctl stop askuser.service
-#fi
+if [ $1 = 0 ]; then
+    systemctl stop askuser.service
+fi
 
 %postun
 if [ $1 = 0 ]; then
@@ -122,13 +122,13 @@ systemctl restart cynara.service
 %manifest %{name}.manifest
 %license LICENSE
 %attr(755, root, root) /usr/bin/askuser
-#/usr/lib/systemd/system/askuser.service
+/usr/lib/systemd/system/askuser.service
 
 %files -n askuser-notification
 %manifest askuser-notification.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
-#/usr/lib/systemd/user/askuser-notification.service
+/usr/lib/systemd/user/askuser-notification.service
 /usr/share/locale/en/LC_MESSAGES/askuser.mo
 /usr/share/locale/pl/LC_MESSAGES/askuser.mo
 

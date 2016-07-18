@@ -78,5 +78,5 @@ SET(TARGET_TEST "askuser-test")
 SET(TARGET_TESTS "askuser-tests")
 
 ADD_SUBDIRECTORY(src)
-#ADD_SUBDIRECTORY(systemd)
+ADD_SUBDIRECTORY(systemd)
 ADD_SUBDIRECTORY(test)
