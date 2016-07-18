@@ -4,7 +4,7 @@ PKG_CHECK_MODULES(ASKUSER_NOTIFICATION_DEP
     REQUIRED
     elementary
     cynara-agent
-    libsystemd-daemon
+    libsystemd
     security-manager
     security-privilege-manager
 )

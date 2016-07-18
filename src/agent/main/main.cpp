@@ -24,12 +24,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
-#include <systemd/sd-journal.h>
-#include <systemd/sd-daemon.h>
-
 #include <attributes/attributes.h>
-
 #include <log/alog.h>
+
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
+#include <systemd/sd-daemon.h>
+#endif
 
 #include "Agent.h"
 
@@ -59,13 +59,14 @@ int main(int argc UNUSED, char **argv UNUSED) {
     try {
         AskUser::Agent::Agent agent;
 
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
         int ret = sd_notify(0, "READY=1");
         if (ret == 0) {
             ALOGW("Agent was not configured to notify its status");
         } else if (ret < 0) {
             ALOGE("sd_notify failed: [" << ret << "]");
         }
-
+#endif
         agent.run();
     } catch (const std::exception &e) {
         ALOGC("Agent stopped because of unhandled exception: <" << e.what() << ">");

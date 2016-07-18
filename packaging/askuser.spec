@@ -1,3 +1,7 @@
+%if !%{defined with_systemd_daemon}
+%define with_systemd_daemon 0
+%endif
+
 Name:       askuser
 Summary:    Agent service for Cynara 'ask user' policy
 Version:    0.1.4
@@ -17,12 +21,10 @@ BuildRequires: pkgconfig(cynara-agent)
 BuildRequires: pkgconfig(cynara-creds-socket)
 BuildRequires: pkgconfig(cynara-plugin)
 BuildRequires: pkgconfig(elementary)
-BuildRequires: pkgconfig(libsystemd-daemon)
-BuildRequires: pkgconfig(libsystemd-journal)
+BuildRequires: pkgconfig(libsystemd)
 BuildRequires: pkgconfig(security-manager)
 BuildRequires: pkgconfig(security-privilege-manager)
 BuildRequires: coregl
-%{?systemd_requires}
 
 %if !%{defined build_type}
 %define build_type RELEASE
@@ -80,6 +82,7 @@ export LDFLAGS+="-Wl,--rpath=%{_libdir}"
 
 %cmake . \
         -DCMAKE_BUILD_TYPE=%{?build_type} \
+        -DBUILD_WITH_SYSTEMD_DAEMON=%{?with_systemd_daemon} \
         -DCMAKE_VERBOSE_MAKEFILE=ON
 make %{?jobs:-j%jobs}
 
@@ -89,6 +92,7 @@ rm -rf %{buildroot}
 %find_lang %{name}
 
 %post
+%if %{with_systemd_daemon}
 # todo properly use systemd --user
 ln -s /lib/systemd/user/askuser-notification.service \
 /usr/lib/systemd/user/default.target.wants/askuser-notification.service 2> /dev/null
@@ -100,17 +104,23 @@ if [ $1 = 1 ]; then
 fi
 
 systemctl restart askuser.service
+%endif
+
 systemctl restart cynara.service
 
 %preun
+%if %{with_systemd_daemon}
 if [ $1 = 0 ]; then
     systemctl stop askuser.service
 fi
+%endif
 
 %postun
+%if %{with_systemd_daemon}
 if [ $1 = 0 ]; then
     systemctl daemon-reload
 fi
+%endif
 
 systemctl restart cynara.service
 
@@ -122,13 +132,17 @@ systemctl restart cynara.service
 %manifest %{name}.manifest
 %license LICENSE
 %attr(755, root, root) /usr/bin/askuser
+%if %{with_systemd_daemon}
 /usr/lib/systemd/system/askuser.service
+%endif
 
 %files -n askuser-notification
 %manifest askuser-notification.manifest
 %license LICENSE
 %attr(755,root,root) /usr/bin/askuser-notification
+%if %{with_systemd_daemon}
 /usr/lib/systemd/user/askuser-notification.service
+%endif
 /usr/share/locale/en/LC_MESSAGES/askuser.mo
 /usr/share/locale/pl/LC_MESSAGES/askuser.mo
 

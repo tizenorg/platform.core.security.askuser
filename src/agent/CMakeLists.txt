@@ -21,7 +21,7 @@ PKG_CHECK_MODULES(AGENT_DEP
     cynara-agent
     cynara-plugin
     cynara-creds-socket
-    libsystemd-daemon
+    libsystemd
     security-privilege-manager
     )
 

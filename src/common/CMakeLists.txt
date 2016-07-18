@@ -19,7 +19,7 @@ PKG_CHECK_MODULES(COMMON_DEP
     REQUIRED
     cynara-plugin
     cynara-agent
-    libsystemd-journal
+    libsystemd
     )
 
 SET(ASKUSER_COMMON_VERSION_MAJOR 0)

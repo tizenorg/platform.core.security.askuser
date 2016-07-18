@@ -23,9 +23,12 @@
 #include <csignal>
 #include <cstdlib>
 #include <string>
-#include <systemd/sd-daemon.h>
 #include <thread>
 #include <unistd.h>
+
+#ifdef BUILD_WITH_SYSTEMD_DEAMON
+#include <systemd/sd-daemon.h>
+#endif
 
 #include <exception/Exception.h>
 #include <log/alog.h>
@@ -45,12 +48,14 @@ int main()
         GuiRunner gui;
         AskUserTalker askUserTalker(&gui);
 
+#ifdef BUILD_WITH_SYSTEMD_DAEMON
         int ret = sd_notify(0, "READY=1");
         if (ret == 0) {
             ALOGW("Agent was not configured to notify its status");
         } else if (ret < 0) {
             ALOGE("sd_notify failed: [" << ret << "]");
         }
+#endif
 
         askUserTalker.run();
 
